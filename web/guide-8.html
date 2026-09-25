@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>导学案8 · 结构体：把数据捆成一个整体 · 飞行器创新实验室 C 语言导学</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="top"><a class="brand" href="index.html">HFUT AircraftLab · C 语言导学</a><span class="stamp">生成于 2026-09-25 10:50 · 0b61179</span></header>
+<div class="layout">
+<nav class="side"><details open class="sidenav"><summary>全站目录</summary><ul><li><a href="guide-0.html"><span class="k">选读</span>0 计算机扫盲课</a></li><li><a href="guide-1.html"><span class="k">导学</span>1 认识 C 语言与开发环境</a></li><li><a href="guide-2.html"><span class="k">导学</span>2 输出、计算与输入</a></li><li><a href="guide-3.html"><span class="k">导学</span>3 判断：让程序学会做选择</a></li><li><a href="guide-4.html"><span class="k">导学</span>4 循环：让程序学会重复</a></li><li><a href="guide-4x.html"><span class="k">选读</span>4附加 附加材料：飞控代码里的三个基础技巧（选读）</a></li><li><a href="guide-5.html"><span class="k">导学</span>5 数组：让程序记住一串数据</a></li><li><a href="guide-6.html"><span class="k">导学</span>6 函数：把重复的逻辑打包</a></li><li><a href="guide-7.html"><span class="k">导学</span>7 指针：地址这门手艺</a></li><li class="cur"><a href="guide-8.html"><span class="k">导学</span>8 结构体：把数据捆成一个整体</a></li><li><a href="hw-1.html"><span class="k">作业</span>1 顺序、判断、循环与数组</a></li><li><a href="hw-2.html"><span class="k">作业</span>2 函数、指针、结构体与字符串</a></li><li><a href="app-1.html"><span class="k">附录</span>1 CMD 速查表</a></li><li><a href="app-2.html"><span class="k">附录</span>2 主控代码（飞控）</a></li></ul></details></nav>
+<main class="content">
+<h1 class="doctitle">导学案8 · 结构体：把数据捆成一个整体</h1><dl class="doc-meta"><dt>前置要求</dt><dd>导学案7（会指针、会数组作函数参数）</dd><dt>参考课程</dt><dd>浙江大学 翁恺《C 语言程序设计》第 11 章（结构类型）</dd><dt>预计用时</dt><dd>1 小时（按需自取）</dd><dt>本节目标</dt><dd>会定义结构体、声明结构体变量和数组、用 <code>.</code> 和 <code>-&gt;</code> 访问成员、把结构体传给函数</dd></dl>
+<details class="toc toc-top"><summary>本页目录</summary><ol><li class="lv2"><a href="#sec-1">8.0 序</a></li><li class="lv2"><a href="#sec-2">8.1 定义与使用</a></li><li class="lv3"><a href="#sec-3">先画图纸，再造房子</a></li><li class="lv3"><a href="#sec-4">用 `.` 访问成员</a></li><li class="lv2"><a href="#sec-5">8.2 结构体与函数</a></li><li class="lv3"><a href="#sec-6">传给函数：想改就传指针，成员用 `-&gt;`</a></li><li class="lv2"><a href="#sec-7">8.3 综合练习</a></li><li class="lv2"><a href="#sec-8">8.4 本节小结与自查</a></li><li class="lv2"><a href="#sec-9">8.5 练习参考代码（做完再看）</a></li><li class="lv3"><a href="#ans-1">练习 1 参考代码</a></li><li class="lv3"><a href="#ans-2">练习 2 参考代码</a></li><li class="lv3"><a href="#ans-3">练习 3 参考代码</a></li></ol></details>
+<article>
+<hr><h2 id="sec-1">8.0 序</h2><p>数组有个硬限制：<strong>只能装同一种类型</strong>。</p><p>但现实里的东西从来不是单一类型的。描述一个学生，要学号（<code>int</code>）、姓名（字符数组）、成绩（<code>double</code>）；描述一条激光雷达数据，要 x、y、偏航角、有效标志。用散变量写，5 个学生就是 15 个变量，还容易张冠李戴。</p><p><strong>结构体</strong>就是来解决这件事的：<strong>把不同类型的数据捆在一起，起一个名字，变成一种&quot;自定义类型&quot;。</strong> 从此&quot;一个学生&quot;就是一个变量，&quot;一班学生&quot;就是一个数组。</p><p>飞控代码里更是如此：每个传感器的数据包都是一个结构体。你在 <code>ZXH_FlightCtrl.c</code> 里看到的 <code>rplidar_st.x</code>、<code>rplidar_st.yaw</code>，就是&quot;结构体变量点成员&quot;。</p><p><strong>本节路线</strong>：<code>定义与使用</code> → <code>结构体数组</code> → <code>结构体与函数</code> → <code>练习</code></p><hr><h2 id="sec-2">8.1 定义与使用</h2><h3 id="sec-3">先画图纸，再造房子</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">struct</span> Student {             <span class="tk-com">/* 定义一个自定义类型：图纸 */</span>
+	<span class="tk-kw">int</span> id;
+	<span class="tk-kw">char</span> name[<span class="tk-num">20</span>];
+	<span class="tk-kw">double</span> score;
+};                           <span class="tk-com">/* 注意：这个分号不能少 */</span></code></pre></div><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">struct</span> Student s = {<span class="tk-num">1001</span>, <span class="tk-str">&quot;张三&quot;</span>, <span class="tk-num">92.5</span>};   <span class="tk-com">/* 声明变量：按图纸造房子，并初始化 */</span></code></pre></div><ul><li><strong>定义结构体不占内存</strong>，它只是告诉编译器&quot;这种类型长什么样&quot;；<strong>声明变量才真的占内存</strong>。</li><li>定义末尾的<strong>分号不能少</strong>，这是新手最常漏的一个分号。</li><li>C 语言里声明变量要带 <code>struct</code> 前缀（<code>struct Student s;</code>）。以后你会见到不带前缀的写法，那是 <code>typedef</code> 起的别名。</li></ul><h3 id="sec-4">用 <code>.</code> 访问成员</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">struct</span> Student {
+	<span class="tk-kw">int</span> id;
+	<span class="tk-kw">char</span> name[<span class="tk-num">20</span>];
+	<span class="tk-kw">double</span> score;
+};
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">struct</span> Student s = {<span class="tk-num">1001</span>, <span class="tk-str">&quot;张三&quot;</span>, <span class="tk-num">92.5</span>};
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;学号：%d\n&quot;</span>, s.id);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;姓名：%s\n&quot;</span>, s.name);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;成绩：%.1f\n&quot;</span>, s.score);
+
+	s.score = <span class="tk-num">95.0</span>;          <span class="tk-com">/* 成员可以单独读、单独改 */</span>
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;改完之后成绩：%.1f\n&quot;</span>, s.score);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">学号：1001
+姓名：张三
+成绩：92.5
+改完之后成绩：95.0</code></pre></div><p>成员就是普通的变量，只是前面多了一个 <code>s.</code>。<code>s.name</code> 是字符数组，所以用 <code>%s</code> 打印、用 <code>scanf(&quot;%s&quot;, s.name)</code> 读入（不写 <code>&amp;</code>，导学案7讲过原因）。</p><hr><h2 id="sec-5">8.2 结构体与函数</h2><h3 id="sec-6">传给函数：想改就传指针，成员用 <code>-&gt;</code></h3><p>结构体传给函数同样是<strong>值传递</strong>（整份复制）。想改到原件，就传地址；这时访问成员要用<strong>箭头 <code>-&gt;</code></strong>：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">struct</span> Point {
+	<span class="tk-kw">int</span> x;
+	<span class="tk-kw">int</span> y;
+};
+
+<span class="tk-kw">void</span> <span class="tk-fn">move</span>(<span class="tk-kw">struct</span> Point *p, <span class="tk-kw">int</span> dx, <span class="tk-kw">int</span> dy)
+{
+	p-&gt;x += dx;              <span class="tk-com">/* 等价于 (*p).x += dx */</span>
+	p-&gt;y += dy;
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">struct</span> Point a = {<span class="tk-num">0</span>, <span class="tk-num">0</span>};
+	<span class="tk-kw">struct</span> Point b = a;      <span class="tk-com">/* b 是 a 的一份拷贝 */</span>
+
+	<span class="tk-fn">move</span>(&amp;a, <span class="tk-num">3</span>, <span class="tk-num">5</span>);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;a = (%d, %d)\n&quot;</span>, a.x, a.y);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;b = (%d, %d)\n&quot;</span>, b.x, b.y);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">a = (3, 5)
+b = (0, 0)</code></pre></div><p>两种访问成员的写法别混：</p><div class="table-wrap"><table><thead><tr><th>手里拿的是</th><th>写法</th><th>例子</th></tr></thead><tbody><tr><td>结构体变量</td><td><code>.</code></td><td><code>rplidar_st.x</code></td></tr><tr><td>结构体指针</td><td><code>-&gt;</code></td><td><code>p-&gt;x</code></td></tr></tbody></table></div><p>结构体往往有几十个字节，整份复制又慢又费内存，所以真实代码里<strong>几乎总是传指针</strong>：<code>ZXH_FlightCtrl.c</code> 里的 <code>&amp;ModeChangedFlag</code>、各种 <code>&amp;xxx_st</code> 都是这个套路。</p><hr><h2 id="sec-7">8.3 综合练习</h2><blockquote><p>本节练习用于自练与自查，<strong>不强制完成、不需要提交</strong>；需要提交的是实验室统一布置的作业（作业一 / 作业二）。 参考代码统一放在<strong>本节末尾</strong>，做完之前不要翻。</p></blockquote><ol><li>定义 <code>struct Book { char title[30]; double price; int stock; }</code>，存 3 本书，打印最贵那本的书名和价格。</li><li><strong>【作业二第 4 题】</strong> 定义 <code>struct Student { int id; int score; }</code>，用 <code>rand()</code> 生成 5 名学生的学号（100~110）和成绩（0~100），按成绩从高到低排序后输出。提示：交换两个结构体可以整体赋值，<code>struct Student t = a[i]; a[i] = a[j]; a[j] = t;</code>。</li><li>定义 <code>struct Point { double x; double y; }</code>，写函数 <code>double dist(struct Point a, struct Point b)</code> 求两点距离（用 <code>sqrt</code>），主函数读入两点并输出（保留两位）。这是作业一第 7 题的地基。</li></ol><p>4.（选做）<strong>【作业二第 5 题】</strong> 判断线段 AB 是否穿过以 C 为球心、R 为半径的球：求 C 到线段 AB 的最短距离 d，若 d &lt; R 则输出&quot;遮挡&quot;，否则输出&quot;未被遮挡&quot;。提示：先求垂足，注意垂足可能落在线段之外，要分三种情况讨论。</p><hr><h2 id="sec-8">8.4 本节小结与自查</h2><p><strong>学完本节，你应该能做到：</strong></p><ul><li>[ ] 定义一个结构体类型并声明变量，知道定义末尾的分号不能少</li><li>[ ] 用 <code>{...}</code> 初始化结构体，用 <code>.</code> 读写成员</li><li>[ ] 把结构体指针传给函数，用 <code>-&gt;</code> 访问成员，说清 <code>.</code> 和 <code>-&gt;</code> 分别在什么时候用</li></ul><blockquote><p><strong>本轮到此为止。</strong> 顺序、选择、循环、数组、函数、指针、结构体——C 语言入门需要的骨架已经齐了。 剩下的（字符串处理、多文件工程、位运算、枚举）都是&quot;用到再查&quot;的东西，有需要我们会要求掌握的，但不是现在。</p></blockquote><h2 id="sec-9">8.5 练习参考代码（做完再看）</h2><details class="ans" id="ans-1"><summary class="ans-title">练习 1 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">struct</span> Book {
+	<span class="tk-kw">char</span> title[<span class="tk-num">30</span>];
+	<span class="tk-kw">double</span> price;
+	<span class="tk-kw">int</span> stock;
+};
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">struct</span> Book books[<span class="tk-num">3</span>] = {
+		{<span class="tk-str">&quot;C语言程序设计&quot;</span>, <span class="tk-num">39.0</span>, <span class="tk-num">12</span>},
+		{<span class="tk-str">&quot;嵌入式系统设计&quot;</span>, <span class="tk-num">59.5</span>, <span class="tk-num">5</span>},
+		{<span class="tk-str">&quot;自动控制原理&quot;</span>, <span class="tk-num">45.0</span>, <span class="tk-num">8</span>}
+	};
+	<span class="tk-kw">int</span> best = <span class="tk-num">0</span>;
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">1</span>; i &lt; <span class="tk-num">3</span>; i++) {
+		<span class="tk-kw">if</span> (books[i].price &gt; books[best].price) {
+			best = i;
+		}
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;最贵的是《%s》，%.1f 元\n&quot;</span>, books[best].title, books[best].price);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：<code>最贵的是《嵌入式系统设计》，59.5 元</code></p></details><details class="ans" id="ans-2"><summary class="ans-title">练习 2 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+<span class="tk-pre">#include &lt;stdlib.h&gt;</span>
+<span class="tk-pre">#include &lt;time.h&gt;</span>
+
+<span class="tk-kw">struct</span> Student {
+	<span class="tk-kw">int</span> id;
+	<span class="tk-kw">int</span> score;
+};
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">struct</span> Student cls[<span class="tk-num">5</span>];
+
+	<span class="tk-fn">srand</span>((<span class="tk-kw">unsigned</span>)<span class="tk-fn">time</span>(<span class="tk-kw">NULL</span>));
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">5</span>; i++) {
+		cls[i].id = <span class="tk-fn">rand</span>() % <span class="tk-num">11</span> + <span class="tk-num">100</span>;      <span class="tk-com">/* 100 ~ 110 */</span>
+		cls[i].score = <span class="tk-fn">rand</span>() % <span class="tk-num">101</span>;        <span class="tk-com">/* 0 ~ 100 */</span>
+	}
+
+	<span class="tk-com">/* 冒泡排序：成绩从高到低 */</span>
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">4</span>; i++) {
+		<span class="tk-kw">for</span> (<span class="tk-kw">int</span> j = <span class="tk-num">0</span>; j &lt; <span class="tk-num">4</span> - i; j++) {
+			<span class="tk-kw">if</span> (cls[j].score &lt; cls[j + <span class="tk-num">1</span>].score) {
+				<span class="tk-kw">struct</span> Student t = cls[j];
+				cls[j] = cls[j + <span class="tk-num">1</span>];
+				cls[j + <span class="tk-num">1</span>] = t;
+			}
+		}
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;学号 成绩\n&quot;</span>);
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">5</span>; i++) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d  %d\n&quot;</span>, cls[i].id, cls[i].score);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><blockquote><p>学号是随机取的，可能重复，想想怎么优化。</p></details></blockquote><details class="ans" id="ans-3"><summary class="ans-title">练习 3 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+<span class="tk-pre">#include &lt;math.h&gt;</span>
+
+<span class="tk-kw">struct</span> Point {
+	<span class="tk-kw">double</span> x;
+	<span class="tk-kw">double</span> y;
+};
+
+<span class="tk-kw">double</span> <span class="tk-fn">dist</span>(<span class="tk-kw">struct</span> Point a, <span class="tk-kw">struct</span> Point b)
+{
+	<span class="tk-kw">double</span> dx = a.x - b.x;
+	<span class="tk-kw">double</span> dy = a.y - b.y;
+	<span class="tk-kw">return</span> <span class="tk-fn">sqrt</span>(dx * dx + dy * dy);
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">struct</span> Point a = {<span class="tk-num">0.0</span>, <span class="tk-num">0.0</span>};
+	<span class="tk-kw">struct</span> Point b = {<span class="tk-num">0.0</span>, <span class="tk-num">0.0</span>};
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入 A 点坐标：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%lf %lf&quot;</span>, &amp;a.x, &amp;a.y);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入 B 点坐标：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%lf %lf&quot;</span>, &amp;b.x, &amp;b.y);
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;距离 = %.2f\n&quot;</span>, <span class="tk-fn">dist</span>(a, b));
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><hr></details>
+</article>
+<footer class="doc-footer"><p>结构体是 C 语言里第一次出现&quot;自定义类型&quot;。从这一节起，你定义变量时想的不只是&quot;它是什么类型&quot;，而是&quot;<strong>它描述的是现实里的什么东西</strong>&quot;。这个转变，就是从&quot;会写 C&quot;到&quot;会用 C 建模&quot;的第一步。</p><p><small>作者：Mike-lin300</small></p><p><small>最后更新：2026-09-25</small></p><p><small>更新说明：删除了多个小节，包括结构体数组、typedef 定义结构体等内容，我觉得可以减轻学生负担，本节应该内容比较少，如果删多了可能会导致知识不连贯，欢迎读者反馈</small></p><p class="gen">本页由 tools/build.js 生成 · 2026-09-25 10:50 · 源文件 导学案8_结构体.md · commit 0b61179</p></footer>
+<nav class="pn"><a href="guide-7.html">← 导学案7 · 指针：地址这门手艺</a><a href="hw-1.html">作业一（第一期）· 顺序、判断、循环与数组 →</a></nav>
+</main>
+<aside class="rail"><div class="rail-box"><div class="rail-title">本页目录</div><ol class="rail-toc"><li class="lv2"><a href="#sec-1">8.0 序</a></li><li class="lv2"><a href="#sec-2">8.1 定义与使用</a></li><li class="lv3"><a href="#sec-3">先画图纸，再造房子</a></li><li class="lv3"><a href="#sec-4">用 `.` 访问成员</a></li><li class="lv2"><a href="#sec-5">8.2 结构体与函数</a></li><li class="lv3"><a href="#sec-6">传给函数：想改就传指针，成员用 `-&gt;`</a></li><li class="lv2"><a href="#sec-7">8.3 综合练习</a></li><li class="lv2"><a href="#sec-8">8.4 本节小结与自查</a></li><li class="lv2"><a href="#sec-9">8.5 练习参考代码（做完再看）</a></li><li class="lv3"><a href="#ans-1">练习 1 参考代码</a></li><li class="lv3"><a href="#ans-2">练习 2 参考代码</a></li><li class="lv3"><a href="#ans-3">练习 3 参考代码</a></li></ol></div></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

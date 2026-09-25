@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>附录二 · 主控代码 ZXH_FlightCtrl.c · 飞行器创新实验室 C 语言导学</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="top"><a class="brand" href="index.html">HFUT AircraftLab · C 语言导学</a><span class="stamp">生成于 2026-09-25 10:50 · 0b61179</span></header>
+<div class="layout">
+<nav class="side"><details open class="sidenav"><summary>全站目录</summary><ul><li><a href="guide-0.html"><span class="k">选读</span>0 计算机扫盲课</a></li><li><a href="guide-1.html"><span class="k">导学</span>1 认识 C 语言与开发环境</a></li><li><a href="guide-2.html"><span class="k">导学</span>2 输出、计算与输入</a></li><li><a href="guide-3.html"><span class="k">导学</span>3 判断：让程序学会做选择</a></li><li><a href="guide-4.html"><span class="k">导学</span>4 循环：让程序学会重复</a></li><li><a href="guide-4x.html"><span class="k">选读</span>4附加 附加材料：飞控代码里的三个基础技巧（选读）</a></li><li><a href="guide-5.html"><span class="k">导学</span>5 数组：让程序记住一串数据</a></li><li><a href="guide-6.html"><span class="k">导学</span>6 函数：把重复的逻辑打包</a></li><li><a href="guide-7.html"><span class="k">导学</span>7 指针：地址这门手艺</a></li><li><a href="guide-8.html"><span class="k">导学</span>8 结构体：把数据捆成一个整体</a></li><li><a href="hw-1.html"><span class="k">作业</span>1 顺序、判断、循环与数组</a></li><li><a href="hw-2.html"><span class="k">作业</span>2 函数、指针、结构体与字符串</a></li><li><a href="app-1.html"><span class="k">附录</span>1 CMD 速查表</a></li><li class="cur"><a href="app-2.html"><span class="k">附录</span>2 主控代码（飞控）</a></li></ul></details></nav>
+<main class="content">
+<h1 class="doctitle">附录二 · 主控代码 ZXH_FlightCtrl.c</h1><dl class="doc-meta"><dt>类别</dt><dd>附录（只读源码）</dd><dt>配套</dt><dd>导学案4 附加材料（选读）</dd><dt>说明</dt><dd>依赖工程内其他模块，不能单独编译；仅作阅读材料</dd></dl>
+<details class="toc toc-top"><summary>本页目录</summary><ol><li class="lv2"><a href="#sec-1">这份代码是什么</a></li><li class="lv2"><a href="#sec-2">三个技巧在哪里</a></li><li class="lv2"><a href="#sec-3">源码（只读）</a></li></ol></details>
+<article>
+<h2 id="sec-1">这份代码是什么</h2><p><code>ZXH_FlightCtrl.c</code> 是实验室真实飞控的<strong>主控任务</strong>：一键起飞 → 短悬停 → 飞四个航点画一个正方形 → 回到原点 → 降落。文件开头那一排 <code>#include</code> 是它依赖的工程模块，所以这份代码在这里<strong>只作为阅读材料</strong>，不能单独编译。</p><blockquote><p><strong>先读导学案4 附加材料，再来看它。</strong>那一节用终端把三个技巧各演了一遍；这一页是"真身"。</p><p><strong>风格提醒</strong>：真实代码是 Tab 缩进、<code>u8</code> / <code>SFlag</code> 这类嵌入式老习惯命名。缩进我们跟它一致（Tab），但命名在教学阶段不用模仿，按导学案2 的命名规则来。</p></blockquote><h2 id="sec-2">三个技巧在哪里</h2><ol><li><strong>状态机</strong>：<code>switch (OrdinalNum)</code>——<code>case 0</code> 一键起飞、<code>case 1</code> 短悬停、<code>case 2 ~ 5</code> 是正方形的四条边、<code>case 99</code> 降落；<code>OrdinalNum++</code> 就是状态迁移。</li><li><strong>单次执行</strong>：每个 <code>case</code> 开头的 <code>if (SFlag == 1) { SFlag = 0; ... }</code>，进入状态时只做一次的初始化。</li><li><strong>计数器分频</strong>：<code>TaskTimer_ms += dT_ms;</code> 配 <code>if (TaskTimer_ms &lt;= 5000)</code>（悬停满 5 秒）、<code>if (TaskConfirmCount &gt;= 200)</code>（连续确认 200 次才切下一个航点）。</li></ol><h2 id="sec-3">源码（只读）</h2><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &quot;Ano_FlightCtrl.h&quot;</span>
+<span class="tk-pre">#include &quot;Ano_RC.h&quot;</span>
+<span class="tk-pre">#include &quot;Ano_ProgramCtrl_User.h&quot;</span>
+<span class="tk-pre">#include &quot;Ano_OF.h&quot;</span>
+<span class="tk-pre">#include &quot;ZXH_Land.h&quot;</span>
+<span class="tk-pre">#include &quot;ZXH_FlightCtrl.h&quot;</span>
+<span class="tk-pre">#include &quot;ZXH_TakeOff.h&quot;</span>
+<span class="tk-pre">#include &quot;ZXH_SendData.h&quot;</span>
+<span class="tk-pre">#include &quot;LZY_TaskManager.h&quot;</span>
+<span class="tk-pre">#include &quot;LZY_DT.h&quot;</span>
+<span class="tk-pre">#include &quot;LZY_RPLidar.h&quot;</span>
+<span class="tk-pre">#include &quot;LZY_LoRa.h&quot;</span>
+<span class="tk-pre">#include &quot;Drv_OpenMV.h&quot;</span>
+
+<span class="tk-kw">unsigned</span> <span class="tk-kw">char</span> SFlag = <span class="tk-num">1</span>;
+<span class="tk-kw">uint16_t</span> ZGS_tm = <span class="tk-num">0</span>;
+<span class="tk-kw">uint16_t</span> ZGS_tm1 = <span class="tk-num">0</span>;
+<span class="tk-kw">unsigned</span> <span class="tk-kw">int</span> TaskTimer_ms = <span class="tk-num">0</span>;
+<span class="tk-kw">unsigned</span> <span class="tk-kw">int</span> TaskConfirmCount = <span class="tk-num">0</span>;
+<span class="tk-kw">unsigned</span> <span class="tk-kw">char</span> OrdinalNum = <span class="tk-num">0</span>;
+<span class="tk-kw">u8</span> ModeChangedFlag = <span class="tk-num">0</span>;
+<span class="tk-com">// unsigned int USART2_TaskTimer_ms = 0;</span>
+
+<span class="tk-com">// u8 userCnt = 0;</span>
+
+<span class="tk-com">/*
+函数名:ZGS_FlightCtrlTask
+参数:dT_ms
+返回值:无
+作用:一键飞行任务
+*/</span>
+<span class="tk-kw">void</span> <span class="tk-fn">ZXH_FlightCtrlTask</span>(<span class="tk-kw">unsigned</span> <span class="tk-kw">char</span> dT_ms)
+{
+	<span class="tk-fn">ZXH_DataSand</span>(jsdata.valid_of_alt_cm);
+	<span class="tk-fn">LZY_DataSand_F4</span>(rplidar_st.x, rplidar_st.y,rplidar_st.yaw, rplidar_st.iflag);
+	ZGS_tm1 = TaskTimer_ms/<span class="tk-num">100</span>;
+	<span class="tk-fn">ZXH_DataSand2</span>(ZGS_tm1);
+	<span class="tk-com">// if (userCnt++ == 0) LoRa_Send(lora_st.c1, lora_st.c2, lora_st.c3);</span>
+	
+	<span class="tk-kw">if</span> (flag.unlock_sta == <span class="tk-num">1</span>)		
+	{		
+		<span class="tk-fn">Remote_Control</span>(dT_ms);
+		<span class="tk-fn">ZXH_AutoLand</span>(dT_ms);
+		<span class="tk-com">// 正常定高</span>
+		<span class="tk-kw">if</span> (KHFlag == <span class="tk-num">1</span> &amp;&amp; LandProgramUnlock_sta == <span class="tk-num">0</span>)
+		{
+			<span class="tk-fn">KeepHeight</span>(OFF_CM);
+		}
+		
+	  	<span class="tk-kw">switch</span>(OrdinalNum)
+		{
+			<span class="tk-kw">case</span> <span class="tk-num">0</span>: 	<span class="tk-com">// 一键起飞</span>
+			{			
+				<span class="tk-kw">if</span> (SFlag == <span class="tk-num">1</span>)
+				{
+					SFlag = <span class="tk-num">0</span>;
+					TaskConfirmCount = <span class="tk-num">0</span>;
+				}
+				
+				<span class="tk-fn">ZXH_AutoTakeOff</span>(dT_ms);		
+				<span class="tk-fn">LZY_DataSand_F3</span>(0x00);
+				<span class="tk-kw">if</span>(<span class="tk-fn">ABS</span>(OFF_CM - RELATIVE_HEIGHT_CM) &lt;= <span class="tk-num">5</span>){
+					ZGS_tm ++;
+				}<span class="tk-kw">else</span> {
+					ZGS_tm = <span class="tk-num">0</span>;
+				}
+
+				<span class="tk-kw">if</span> (KHFlag == <span class="tk-num">1</span> &amp;&amp; ZGS_tm&gt;<span class="tk-num">20</span>)
+				{
+					<span class="tk-kw">if</span> (TaskConfirmCount &lt;= <span class="tk-num">10</span>)
+					{
+						<span class="tk-kw">if</span>(<span class="tk-fn">ABS</span>(OFF_CM - RELATIVE_HEIGHT_CM) &lt;= <span class="tk-num">5</span>){
+						TaskConfirmCount ++;
+						}<span class="tk-kw">else</span> {
+							TaskConfirmCount = <span class="tk-num">0</span>;
+						}
+					}
+					<span class="tk-kw">else</span>
+					{
+						TaskConfirmCount = <span class="tk-num">0</span>;
+						TaskTimer_ms = <span class="tk-num">0</span>;					
+						SFlag = <span class="tk-num">1</span>;
+						
+						OrdinalNum++;						
+					}
+				}
+			}<span class="tk-kw">break</span>;
+			<span class="tk-kw">case</span> <span class="tk-num">1</span>:		<span class="tk-com">// 短悬停</span>
+			{
+				<span class="tk-kw">if</span> (SFlag == <span class="tk-num">1</span>)
+				{
+					SFlag = <span class="tk-num">0</span>;
+					TaskTimer_ms = <span class="tk-num">0</span>;
+				}
+				<span class="tk-fn">LZY_DataSand_F3</span>(0x01);
+				<span class="tk-kw">if</span> (TaskTimer_ms &lt;= <span class="tk-num">5000</span>)
+				{
+					<span class="tk-kw">if</span> (rplidar_st.iflag) {
+						<span class="tk-fn">LZY_Scheduler</span>(TASK_MODE_POSITION_CTRL, <span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">0.02</span>, &amp;ModeChangedFlag);
+					}
+					TaskTimer_ms += dT_ms;
+				}
+				<span class="tk-kw">else</span>
+				{
+					TaskTimer_ms = <span class="tk-num">0</span>;
+					OrdinalNum++;
+				}
+			}<span class="tk-kw">break</span>;
+			<span class="tk-kw">case</span> <span class="tk-num">2</span>:
+			{
+				<span class="tk-kw">if</span> (SFlag == <span class="tk-num">1</span>)
+				{
+					ModeChangedFlag = <span class="tk-num">1</span>;
+					SFlag = <span class="tk-num">0</span>;
+					TaskTimer_ms = <span class="tk-num">0</span>;
+					TaskConfirmCount = <span class="tk-num">0</span>;
+				}
+				<span class="tk-fn">LZY_DataSand_F3</span>(0x02);
+				<span class="tk-kw">if</span> (rplidar_st.iflag) {
+					<span class="tk-fn">LZY_Scheduler</span>(TASK_MODE_POSITION_CTRL, <span class="tk-num">150</span>, <span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">0.02</span>, &amp;ModeChangedFlag);
+				}
+				<span class="tk-kw">else</span> {
+					<span class="tk-fn">LZY_Scheduler</span>(TASK_MODE_VELOCITY_HOVER, <span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">0.02</span>, &amp;ModeChangedFlag);
+				}
+
+				<span class="tk-kw">if</span> (<span class="tk-fn">InRange</span>(<span class="tk-num">150</span>, <span class="tk-num">0</span>, <span class="tk-num">8</span>)) {
+					TaskConfirmCount++;
+					OFF_CM = <span class="tk-num">100</span>;
+				}
+				<span class="tk-kw">else</span> {
+					TaskConfirmCount = <span class="tk-num">0</span>;
+				}
+
+				<span class="tk-kw">if</span> (TaskConfirmCount &gt;= <span class="tk-num">200</span>)
+				{
+					TaskTimer_ms = <span class="tk-num">0</span>;
+					TaskConfirmCount = <span class="tk-num">0</span>;
+					ModeChangedFlag = <span class="tk-num">1</span>;
+					OrdinalNum++;
+				}
+			}<span class="tk-kw">break</span>;
+			<span class="tk-kw">case</span> <span class="tk-num">3</span>:
+			{
+				<span class="tk-kw">if</span> (SFlag == <span class="tk-num">1</span>)
+				{
+					ModeChangedFlag = <span class="tk-num">1</span>;
+					SFlag = <span class="tk-num">0</span>;
+					TaskTimer_ms = <span class="tk-num">0</span>;
+					TaskConfirmCount = <span class="tk-num">0</span>;
+				}
+				<span class="tk-fn">LZY_DataSand_F3</span>(0x03);
+				<span class="tk-kw">if</span> (rplidar_st.iflag) {
+					<span class="tk-fn">LZY_Scheduler</span>(TASK_MODE_POSITION_CTRL, <span class="tk-num">150</span>, <span class="tk-num">150</span>, <span class="tk-num">0</span>, <span class="tk-num">0.02</span>, &amp;ModeChangedFlag);
+				}
+				<span class="tk-kw">else</span> {
+					<span class="tk-fn">LZY_Scheduler</span>(TASK_MODE_VELOCITY_HOVER, <span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">0.02</span>, &amp;ModeChangedFlag);
+				}
+
+				<span class="tk-kw">if</span> (<span class="tk-fn">InRange</span>(<span class="tk-num">150</span>, <span class="tk-num">150</span>, <span class="tk-num">8</span>)) {
+					TaskConfirmCount++;
+					OFF_CM = <span class="tk-num">150</span>;
+				}
+				<span class="tk-kw">else</span> {
+					TaskConfirmCount = <span class="tk-num">0</span>;
+				}
+
+				<span class="tk-kw">if</span> (TaskConfirmCount &gt;= <span class="tk-num">200</span>)
+				{
+					TaskTimer_ms = <span class="tk-num">0</span>;
+					TaskConfirmCount = <span class="tk-num">0</span>;
+					ModeChangedFlag = <span class="tk-num">1</span>;
+					OrdinalNum++;
+				}
+			}<span class="tk-kw">break</span>;
+			<span class="tk-kw">case</span> <span class="tk-num">4</span>:
+			{
+				<span class="tk-kw">if</span> (SFlag == <span class="tk-num">1</span>)
+				{
+					ModeChangedFlag = <span class="tk-num">1</span>;
+					SFlag = <span class="tk-num">0</span>;
+					TaskTimer_ms = <span class="tk-num">0</span>;
+					TaskConfirmCount = <span class="tk-num">0</span>;
+				}
+				<span class="tk-fn">LZY_DataSand_F3</span>(0x04);
+				<span class="tk-kw">if</span> (rplidar_st.iflag) {
+					<span class="tk-fn">LZY_Scheduler</span>(TASK_MODE_POSITION_CTRL, <span class="tk-num">0</span>, <span class="tk-num">150</span>, <span class="tk-num">0</span>, <span class="tk-num">0.02</span>, &amp;ModeChangedFlag);
+				}
+				<span class="tk-kw">else</span> {
+					<span class="tk-fn">LZY_Scheduler</span>(TASK_MODE_VELOCITY_HOVER, <span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">0.02</span>, &amp;ModeChangedFlag);
+				}
+
+				<span class="tk-kw">if</span> (<span class="tk-fn">InRange</span>(<span class="tk-num">0</span>, <span class="tk-num">150</span>, <span class="tk-num">8</span>)) {
+					TaskConfirmCount++;
+				}
+				<span class="tk-kw">else</span> {
+					TaskConfirmCount = <span class="tk-num">0</span>;
+				}
+
+				<span class="tk-kw">if</span> (TaskConfirmCount &gt;= <span class="tk-num">100</span>)
+				{
+					TaskTimer_ms = <span class="tk-num">0</span>;
+					TaskConfirmCount = <span class="tk-num">0</span>;
+					ModeChangedFlag = <span class="tk-num">1</span>;
+					OrdinalNum++;
+				}
+			}<span class="tk-kw">break</span>;
+			<span class="tk-kw">case</span> <span class="tk-num">5</span>:
+			{
+				<span class="tk-kw">if</span> (SFlag == <span class="tk-num">1</span>)
+				{
+					ModeChangedFlag = <span class="tk-num">1</span>;
+					SFlag = <span class="tk-num">0</span>;
+					TaskTimer_ms = <span class="tk-num">0</span>;
+					TaskConfirmCount = <span class="tk-num">0</span>;
+				}
+				<span class="tk-fn">LZY_DataSand_F3</span>(0x05);
+				<span class="tk-kw">if</span> (rplidar_st.iflag) {
+					<span class="tk-fn">LZY_Scheduler</span>(TASK_MODE_POSITION_CTRL, <span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">0.02</span>, &amp;ModeChangedFlag);
+				}
+				<span class="tk-kw">else</span> {
+					<span class="tk-fn">LZY_Scheduler</span>(TASK_MODE_VELOCITY_HOVER, <span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">0.02</span>, &amp;ModeChangedFlag);
+				}
+
+				<span class="tk-kw">if</span> (<span class="tk-fn">InRange</span>(<span class="tk-num">0</span>, <span class="tk-num">0</span>, <span class="tk-num">8</span>)) {
+					TaskConfirmCount++;
+				}
+				<span class="tk-kw">else</span> {
+					TaskConfirmCount = <span class="tk-num">0</span>;
+				}
+
+				<span class="tk-kw">if</span> (TaskConfirmCount &gt;= <span class="tk-num">100</span>)
+				{
+					TaskTimer_ms = <span class="tk-num">0</span>;
+					TaskConfirmCount = <span class="tk-num">0</span>;
+					OrdinalNum = <span class="tk-num">99</span>;
+				}
+			}<span class="tk-kw">break</span>;
+
+			<span class="tk-kw">case</span> <span class="tk-num">99</span>:	<span class="tk-com">// 降落</span>
+			{
+				<span class="tk-fn">LZY_DataSand_F3</span>(0x63);
+				LandProgramUnlock_sta = <span class="tk-num">1</span>;
+				ZXH_Land = Yes; 
+			}<span class="tk-kw">break</span>;
+		}	
+	}
+}
+</code></pre></div>
+</article>
+<footer class="doc-footer"><p class="gen">本页由 tools/build.js 生成 · 2026-09-25 10:50 · 源文件 附录二_主控代码/ZXH_FlightCtrl.c · commit 0b61179</p></footer>
+<nav class="pn"><a href="app-1.html">← Windows CMD 常用指令速查手册</a><span></span></nav>
+</main>
+<aside class="rail"><div class="rail-box"><div class="rail-title">本页目录</div><ol class="rail-toc"><li class="lv2"><a href="#sec-1">这份代码是什么</a></li><li class="lv2"><a href="#sec-2">三个技巧在哪里</a></li><li class="lv2"><a href="#sec-3">源码（只读）</a></li></ol></div></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>导学案4 · 循环：让程序学会重复 · 飞行器创新实验室 C 语言导学</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="top"><a class="brand" href="index.html">HFUT AircraftLab · C 语言导学</a><span class="stamp">生成于 2026-09-25 10:50 · 0b61179</span></header>
+<div class="layout">
+<nav class="side"><details open class="sidenav"><summary>全站目录</summary><ul><li><a href="guide-0.html"><span class="k">选读</span>0 计算机扫盲课</a></li><li><a href="guide-1.html"><span class="k">导学</span>1 认识 C 语言与开发环境</a></li><li><a href="guide-2.html"><span class="k">导学</span>2 输出、计算与输入</a></li><li><a href="guide-3.html"><span class="k">导学</span>3 判断：让程序学会做选择</a></li><li class="cur"><a href="guide-4.html"><span class="k">导学</span>4 循环：让程序学会重复</a></li><li><a href="guide-4x.html"><span class="k">选读</span>4附加 附加材料：飞控代码里的三个基础技巧（选读）</a></li><li><a href="guide-5.html"><span class="k">导学</span>5 数组：让程序记住一串数据</a></li><li><a href="guide-6.html"><span class="k">导学</span>6 函数：把重复的逻辑打包</a></li><li><a href="guide-7.html"><span class="k">导学</span>7 指针：地址这门手艺</a></li><li><a href="guide-8.html"><span class="k">导学</span>8 结构体：把数据捆成一个整体</a></li><li><a href="hw-1.html"><span class="k">作业</span>1 顺序、判断、循环与数组</a></li><li><a href="hw-2.html"><span class="k">作业</span>2 函数、指针、结构体与字符串</a></li><li><a href="app-1.html"><span class="k">附录</span>1 CMD 速查表</a></li><li><a href="app-2.html"><span class="k">附录</span>2 主控代码（飞控）</a></li></ul></details></nav>
+<main class="content">
+<h1 class="doctitle">导学案4 · 循环：让程序学会重复</h1><dl class="doc-meta"><dt>前置要求</dt><dd>导学案3（会写 if / else if / switch，理解&quot;真假就是 1 和 0&quot;）</dd><dt>参考课程</dt><dd>浙江大学 翁恺《C 语言程序设计》第 4~5 章（循环、循环控制）</dd><dt>预计用时</dt><dd>2.5 小时（初学者会感到陌生，按需自取）</dd><dt>本节目标</dt><dd>会用 while / for / do-while，会用 break 和 continue，能读懂嵌套循环</dd></dl>
+<details class="toc toc-top"><summary>本页目录</summary><ol><li class="lv2"><a href="#sec-1">4.0 序</a></li><li class="lv2"><a href="#sec-2">4.1 while 循环</a></li><li class="lv3"><a href="#sec-3">骨架与三要素</a></li><li class="lv3"><a href="#sec-4">demo 1：打印 1 ~ 10</a></li><li class="lv3"><a href="#sec-5">demo 2：累加求和 1 + 2 + ... + 100</a></li><li class="lv3"><a href="#sec-6">while 是&quot;先判断，后执行&quot;</a></li><li class="lv3"><a href="#sec-7">死循环：亲手制造一次</a></li><li class="lv2"><a href="#sec-8">4.2 for 循环</a></li><li class="lv3"><a href="#sec-9">骨架：把 while 的三要素搬到一行</a></li><li class="lv3"><a href="#sec-10">执行顺序</a></li><li class="lv3"><a href="#sec-11">demo：三种常见走法</a></li><li class="lv3"><a href="#sec-12">for 还是 while？</a></li><li class="lv2"><a href="#sec-13">4.3 do-while 循环（用得最少，认识即可）</a></li><li class="lv3"><a href="#sec-14">到底差在哪：一个最小对照</a></li><li class="lv2"><a href="#sec-15">4.4 break 与 continue</a></li><li class="lv3"><a href="#sec-16">break：找到就收工</a></li><li class="lv3"><a href="#sec-17">continue：跳过这一圈</a></li><li class="lv3"><a href="#sec-18">两点边界</a></li><li class="lv2"><a href="#sec-19">4.5 嵌套循环</a></li><li class="lv3"><a href="#sec-20">demo 1：直角三角形</a></li><li class="lv3"><a href="#sec-21">demo 2：九九乘法表</a></li><li class="lv3"><a href="#sec-22">一个最朴素也最有效的调试技巧</a></li><li class="lv2"><a href="#sec-23">4.6 综合练习</a></li><li class="lv3"><a href="#sec-24">练习 1｜求和与平均值</a></li><li class="lv3"><a href="#sec-25">练习 2｜阶乘</a></li><li class="lv3"><a href="#sec-26">练习 3｜猜数字（两个人玩）</a></li><li class="lv3"><a href="#sec-27">练习 4｜水仙花数</a></li><li class="lv3"><a href="#sec-28">练习 5｜倒三角形</a></li><li class="lv3"><a href="#sec-29">练习 6｜找错题</a></li><li class="lv3"><a href="#sec-30">练习 7（选做）｜100 以内的素数</a></li><li class="lv2"><a href="#sec-31">4.7 本节小结与自查</a></li><li class="lv2"><a href="#sec-32">4.8 练习参考代码（做完再看）</a></li><li class="lv3"><a href="#ans-1">练习 1 参考代码</a></li><li class="lv3"><a href="#ans-2">练习 2 参考代码</a></li><li class="lv3"><a href="#ans-3">练习 3 参考代码</a></li><li class="lv3"><a href="#ans-4">练习 4 参考代码</a></li><li class="lv3"><a href="#ans-5">练习 5 参考代码</a></li><li class="lv3"><a href="#ans-6">练习 6 参考答案</a></li><li class="lv3"><a href="#ans-7">练习 7 参考代码</a></li></ol></details>
+<article>
+<hr><h2 id="sec-1">4.0 序</h2><p>先做个小任务：<strong>请打印 1 到 100，每个数一行。</strong></p><p>如果一行写一个 <code>printf</code> ，那刚写到前几行你就会想放弃了。面对重复的劳动，<strong>循环</strong>可以解决的问题：<strong>把重复的动作交给计算机。</strong></p><p>到这里，程序设计的三大基本结构就集齐了：<strong>顺序</strong>（导学案2）、<strong>选择</strong>（导学案3）、<strong>循环</strong>（本节）。那句很有名的结论现在你可以自己验证了：<strong>任何逻辑都能用这三种结构拼出来。</strong></p><p><strong>本节路线</strong>：<code>while</code> → <code>for</code> → <code>do-while</code> → <code>break / continue</code> → <code>嵌套循环</code> → <code>练习</code></p><blockquote><p><strong>本节不讲</strong>：数组、函数、指针。需要&quot;存一串数&quot;的题目，我们用&quot;滚动变量&quot;绕过（比如斐波那契）。数组在导学案5。</p></blockquote><hr><h2 id="sec-2">4.1 while 循环</h2><h3 id="sec-3">骨架与三要素</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">while</span> (条件) {
+	<span class="tk-com">/* 条件为真，就反复执行这里 */</span>
+}</code></pre></div><p>任何一个循环都由<strong>三要素</strong>组成，缺一不可：</p><div class="table-wrap"><table><thead><tr><th>要素</th><th>在代码里的位置</th><th>少了会怎样</th></tr></thead><tbody><tr><td>① <strong>初值</strong></td><td>循环<strong>之前</strong>给变量赋值</td><td>用到了垃圾值，结果随机</td></tr><tr><td>② <strong>条件</strong></td><td><code>while (...)</code> 的括号里</td><td>编译报错</td></tr><tr><td>③ <strong>更新</strong></td><td>循环<strong>体内</strong>改变量</td><td><strong>死循环</strong>，永远出不来</td></tr></tbody></table></div><p>写完一个循环，请自己对照这张表检查一遍。这是本节最实用的一条建议。</p><h3 id="sec-4">demo 1：打印 1 ~ 10</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> i = <span class="tk-num">1</span>;                 <span class="tk-com">/* ① 初值 */</span>
+
+	<span class="tk-kw">while</span> (i &lt;= <span class="tk-num">10</span>) {          <span class="tk-com">/* ② 条件 */</span>
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d\n&quot;</span>, i);
+		i = i + <span class="tk-num">1</span>;             <span class="tk-com">/* ③ 更新，也可以写成 i++ */</span>
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>就会输出1 ~ 10，它执行过程是：<strong>判断条件 → 执行循环体 → 更新 → 回到判断条件</strong>……直到条件为假，跳出循环往下走。</p><h3 id="sec-5">demo 2：累加求和 1 + 2 + ... + 100</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> i = <span class="tk-num">1</span>;
+	<span class="tk-kw">int</span> sum = <span class="tk-num">0</span>;               <span class="tk-com">/* 累加器必须从 0 开始 */</span>
+
+	<span class="tk-kw">while</span> (i &lt;= <span class="tk-num">100</span>) {
+		sum += i;              <span class="tk-com">/* 等价于 sum = sum + i */</span>
+		i++;
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;1 加到 100 = %d\n&quot;</span>, sum);
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">1 加到 100 = 5050</code></pre></div><p><code>sum</code> 这种变量叫<strong>累加器</strong>。请特别注意 <code>int sum = 0;</code> 里的 <code>= 0</code>：如果只写 <code>int sum;</code>，里面就是导学案2讲过的<strong>垃圾值</strong>，你最后会得到一个莫名其妙的数——而且不报错。</p><h3 id="sec-6">while 是&quot;先判断，后执行&quot;</h3><p>如果条件一开始就不成立，循环体<strong>一次都不会执行</strong>：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> i = <span class="tk-num">100</span>;
+
+	<span class="tk-kw">while</span> (i &lt; <span class="tk-num">10</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;这一行永远不会被打印\n&quot;</span>);
+		i++;
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;循环体一次都没执行，i 还是 %d\n&quot;</span>, i);
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">循环体一次都没执行，i 还是 100</code></pre></div><h3 id="sec-7">死循环：亲手制造一次</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 反面示例：故意制造死循环，试完请立刻停掉 */</span>
+<span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> i = <span class="tk-num">1</span>;
+
+	<span class="tk-kw">while</span> (i &lt;= <span class="tk-num">10</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d\n&quot;</span>, i);     <span class="tk-com">/* 忘了写 i++，条件永远成立 */</span>
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>屏幕会被数字刷满，程序停不下来。怎么停：</p><ul><li>命令行里按 <code>Ctrl + C</code>，或者直接关掉窗口；</li><li>Dev-C++ 点工具栏的&quot;停止&quot;按钮；</li><li>VS 点&quot;调试 → 全部终止&quot;（<code>Shift + F5</code>）。</li></ul><hr><h2 id="sec-8">4.2 for 循环</h2><blockquote><p><strong>Dev-C++ 用户请先做一次设置（一次设置，永久生效）</strong></p><p>本节开始大量出现 <code>for (int i = 0; ...)</code> 这种<strong>在 for 里面声明变量</strong>的写法，它属于 C99 标准。Dev-C++ 自带的 <code>gcc 4.9.2</code> 编译器比较老，可能不支持，会报：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">error: 'for' loop initial declarations are only allowed in C99 mode</code></pre></div><p>解决办法：<strong>工具 → 编译选项 → &quot;编译器&quot;选项卡 → 勾选&quot;编译时加入以下命令&quot; → 填 <code>-std=c99</code> → 确定</strong>。（也可以在&quot;代码生成/优化&quot;选项卡里，把&quot;语言标准&quot;改成 ISO C99。）</p><p>如果你不想改设置，把变量声明在 for 外面也完全一样：<code>int i; for (i = 0; ...)</code>。<strong>VS 用户不需要做这件事。</strong></p></blockquote><h3 id="sec-9">骨架：把 while 的三要素搬到一行</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">for</span> (初值; 条件; 更新) {
+	<span class="tk-com">/* 循环体 */</span>
+}</code></pre></div><p>同一段逻辑，两种写法<strong>完全等价</strong>，请并排对照着看：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* while 版 */</span>
+<span class="tk-kw">int</span> i = <span class="tk-num">1</span>;
+<span class="tk-kw">while</span> (i &lt;= <span class="tk-num">10</span>) {
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d\n&quot;</span>, i);
+	i++;
+}</code></pre></div><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* for 版 */</span>
+<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">1</span>; i &lt;= <span class="tk-num">10</span>; i++) {
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d\n&quot;</span>, i);
+}</code></pre></div><p><code>for</code> 的好处是：<strong>三要素全写在一行里，想漏都难。</strong> 这就是为什么实际项目里 <code>for</code> 用得比 <code>while</code> 多。</p><h3 id="sec-10">执行顺序</h3><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">① 初值（整个循环只做一次）
+      ↓
+② 判断条件 ── 假 ──→ 跳出循环，往下执行
+      ↓ 真
+③ 执行循环体
+      ↓
+④ 执行更新
+      ↓
+   回到 ②</code></pre></div><p>注意：<strong>初值只在最开始执行一次</strong>，之后每圈都是&quot;判断 → 循环体 → 更新&quot;。</p><h3 id="sec-11">demo：三种常见走法</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">1</span>; i &lt;= <span class="tk-num">5</span>; i++) {          <span class="tk-com">/* 正着数 */</span>
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d &quot;</span>, i);
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">5</span>; i &gt;= <span class="tk-num">1</span>; i--) {          <span class="tk-com">/* 倒着数 */</span>
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d &quot;</span>, i);
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt;= <span class="tk-num">10</span>; i += <span class="tk-num">2</span>) {      <span class="tk-com">/* 步长 2 */</span>
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d &quot;</span>, i);
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">1 2 3 4 5
+5 4 3 2 1
+0 2 4 6 8 10</code></pre></div><h3 id="sec-12">for 还是 while？</h3><p>一句话结论：<strong>次数已知用 <code>for</code>，条件驱动用 <code>while</code>。</strong></p><ul><li>&quot;做 100 次&quot; → <code>for</code></li><li>&quot;直到用户输入正确为止&quot; → <code>while</code></li></ul><hr><h2 id="sec-13">4.3 do-while 循环（用得最少，认识即可）</h2><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">do</span> {
+	<span class="tk-com">/* 先执行一次 */</span>
+} <span class="tk-kw">while</span> (条件);</code></pre></div><p>和 <code>while</code> 的唯一区别：<strong><code>do-while</code> 先执行后判断，所以循环体至少会执行一次。</strong></p><p>它的天然场景就是&quot;<strong>至少要来一遍</strong>&quot;的事：显示菜单、要求用户输入并校验。</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> n = <span class="tk-num">0</span>;
+
+	<span class="tk-kw">do</span> {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入一个 1~3 的整数：&quot;</span>);
+		<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;n);
+	} <span class="tk-kw">while</span> (n &lt; <span class="tk-num">1</span> || n &gt; <span class="tk-num">3</span>);
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;你输入的是 %d\n&quot;</span>, n);
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输错就再问一次，直到输入合法为止。用 <code>while</code> 也能写，但要先伪造一次输入，别扭得多。</p><p><strong>一个细节：<code>while (...);</code> 后面的分号不能少</strong>，这是三种循环里唯一需要分号收尾的，漏了就编译报错。</p><h3 id="sec-14">到底差在哪：一个最小对照</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> i = <span class="tk-num">100</span>;
+
+	<span class="tk-kw">while</span> (i &lt; <span class="tk-num">10</span>) {                 <span class="tk-com">/* 条件一开始就不成立 */</span>
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;while 执行了\n&quot;</span>);
+		i++;
+	}
+
+	<span class="tk-kw">do</span> {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;do-while 执行了\n&quot;</span>);  <span class="tk-com">/* 但它照样执行了一次 */</span>
+		i++;
+	} <span class="tk-kw">while</span> (i &lt; <span class="tk-num">10</span>);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">do-while 执行了</code></pre></div><p><code>while</code> 执行了 0 次，<code>do-while</code> 执行了 1 次。就这一点区别。</p><hr><h2 id="sec-15">4.4 break 与 continue</h2><p>两个词长得像，作用完全不同，<strong>务必分清</strong>：</p><div class="table-wrap"><table><thead><tr><th>关键字</th><th>作用</th></tr></thead><tbody><tr><td><code>break</code></td><td><strong>立刻跳出整个循环</strong>，后面的圈数全都不做了（在导学案3的 <code>switch</code> 里已经见过它）</td></tr><tr><td><code>continue</code></td><td><strong>跳过本次剩下的部分</strong>，直接进入下一圈</td></tr></tbody></table></div><h3 id="sec-16">break：找到就收工</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">1</span>; i &lt;= <span class="tk-num">100</span>; i++) {
+		<span class="tk-kw">if</span> (i % <span class="tk-num">7</span> == <span class="tk-num">0</span>) {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;找到了：%d\n&quot;</span>, i);
+			<span class="tk-kw">break</span>;
+		}
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">找到了：7</code></pre></div><p>没有 <code>break</code> 的话，它会把 7、14、21……98 全打印出来。<strong>&quot;找到第一个就停&quot;是 break 最常见的用途</strong>，导学案5在数组里查找元素时会再用到。</p><h3 id="sec-17">continue：跳过这一圈</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">1</span>; i &lt;= <span class="tk-num">20</span>; i++) {
+		<span class="tk-kw">if</span> (i % <span class="tk-num">2</span> == <span class="tk-num">0</span>) {
+			<span class="tk-kw">continue</span>;              <span class="tk-com">/* 偶数：跳过本圈剩下的部分 */</span>
+		}
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d &quot;</span>, i);
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">1 3 5 7 9 11 13 15 17 19</code></pre></div><blockquote><p>说实话，这个例子写成 <code>if (i % 2 == 1) { printf(&quot;%d &quot;, i); }</code> 更简单。<code>continue</code> 真正的价值在于<strong>循环体很长、遇到某种情况就想提前放弃这一圈</strong>的时候，比如&quot;这一批数据里有个坏值，跳过它别参与统计&quot;。</p></blockquote><h3 id="sec-18">两点边界</h3><ol><li><strong>嵌套循环里，<code>break</code> 只跳出最内层</strong>那一层，外层会继续。</li><li>C 语言还有个 <code>goto</code>，能跳到任意位置。<strong>业界共识是别用</strong>，它会让你自己写的代码三天后自己都看不懂。</li></ol><hr><h2 id="sec-19">4.5 嵌套循环</h2><p>循环里面再套一个循环，叫<strong>嵌套循环</strong>。语法上没什么新东西，难的是脑子里要有画面。记住一句话：</p><blockquote><p><strong>外层走一步，内层走一整圈。</strong></p></blockquote><div class="table-wrap"><table><thead><tr><th>外圈 i</th><th>内圈 j 走过的值</th></tr></thead><tbody><tr><td><code>i = 1</code></td><td><code>j = 1, 2, 3, ..., 9</code></td></tr><tr><td><code>i = 2</code></td><td><code>j = 1, 2, 3, ..., 9</code>（重新从 1 开始）</td></tr><tr><td><code>i = 3</code></td><td><code>j = 1, 2, 3, ..., 9</code></td></tr></tbody></table></div><h3 id="sec-20">demo 1：直角三角形</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">1</span>; i &lt;= <span class="tk-num">5</span>; i++) {          <span class="tk-com">/* i 控制第几行 */</span>
+		<span class="tk-kw">for</span> (<span class="tk-kw">int</span> j = <span class="tk-num">1</span>; j &lt;= i; j++) {      <span class="tk-com">/* j 控制这一行打几个星号 */</span>
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;*&quot;</span>);
+		}
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);                       <span class="tk-com">/* 一行结束，换行 */</span>
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">*
+**
+***
+****
+*****</code></pre></div><p>图形化的输出最容易让人&quot;突然开窍&quot;：<strong>外层管行，内层管列。</strong></p><h3 id="sec-21">demo 2：九九乘法表</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">1</span>; i &lt;= <span class="tk-num">9</span>; i++) {
+		<span class="tk-kw">for</span> (<span class="tk-kw">int</span> j = <span class="tk-num">1</span>; j &lt;= i; j++) {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d*%d=%-3d&quot;</span>, j, i, i * j);
+		}
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">1*1=1
+1*2=2  2*2=4
+1*3=3  2*3=6  3*3=9
+1*4=4  2*4=8  3*4=12 4*4=16
+1*5=5  2*5=10 3*5=15 4*5=20 5*5=25
+1*6=6  2*6=12 3*6=18 4*6=24 5*6=30 6*6=36
+1*7=7  2*7=14 3*7=21 4*7=28 5*7=35 6*7=42 7*7=49
+1*8=8  2*8=16 3*8=24 4*8=32 5*8=40 6*8=48 7*8=56 8*8=64
+1*9=9  2*9=18 3*9=27 4*9=36 5*9=45 6*9=54 7*9=63 8*9=72 9*9=81</code></pre></div><p><code>%-3d</code> 表示&quot;占 3 位、左对齐&quot;，这样每列的宽度都一样，表格才整齐——正好回收导学案2里&quot;<code>\t</code> 对不齐&quot;的那条备注。</p><h3 id="sec-22">一个最朴素也最有效的调试技巧</h3><p>嵌套循环绕不明白？<strong>把执行过程打印出来看</strong>：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 片段：把这段临时塞进循环体，看完再删掉 */</span>
+<span class="tk-fn">printf</span>(<span class="tk-str">&quot;i=%d j=%d\n&quot;</span>, i, j);</code></pre></div><p>你会看到 <code>i</code> 和 <code>j</code> 一步一步怎么变的，比在脑子里模拟可靠一百倍。这个方法你以后会一直用（专业一点的说法叫&quot;打日志&quot;）。等真要上手断点调试，那是另一件事了，现在不用急。</p><hr><h2 id="sec-23">4.6 综合练习</h2><blockquote><p>本节练习用于自练与自查，<strong>不强制完成、不需要提交</strong>；需要提交的是实验室统一布置的作业（作业一 / 作业二）。 参考代码统一放在<strong>本节末尾</strong>，做完之前不要翻。</p></blockquote><h3 id="sec-24">练习 1｜求和与平均值</h3> <a class="jump" href="#ans-1">参考代码 ↧</a><p>读入一个正整数 <code>n</code>，输出 <code>1</code> 到 <code>n</code> 的和，以及它们的平均值（保留两位小数）。</p><h3 id="sec-25">练习 2｜阶乘</h3> <a class="jump" href="#ans-2">参考代码 ↧</a><p>读入 <code>n</code>，输出 <code>n!</code>（1 × 2 × 3 × ... × n）。</p><blockquote><p><strong>额外任务（重要）</strong>：用 <code>int</code> 存结果，先算 <code>12!</code>，再算 <code>13!</code>，观察第二个结果有多荒唐，并用导学案2 2.5 的知识解释它。然后换成 <code>long long</code>（打印用 <code>%lld</code>）再试一次，看看能撑到多少。</p><p>这个实验想让你记住一件事：<strong>计算机的数是有范围的，而且超范围时它不会告诉你。</strong> 单片机上的变量比电脑上的还小气得多。</p></blockquote><h3 id="sec-26">练习 3｜猜数字（两个人玩）</h3> <a class="jump" href="#ans-3">参考代码 ↧</a><p>第一位同学输入一个&quot;谜底&quot;，第二位同学来猜，程序提示&quot;大了&quot;或&quot;小了&quot;，最多猜 7 次。</p><blockquote><p><strong>提示</strong>：为什么要两个人？因为我们还没讲随机数（那要引入 <code>&lt;stdlib.h&gt;</code> 和函数调用，超出本轮范围）。用&quot;人当随机数发生器&quot;是最干净的办法。 结构上是 <code>while</code> + <code>if / else if</code> + <code>break</code> 的组合，正好把导学案3和本节串起来。7 次不是随便定的：1~100 用二分法猜，最多 7 次一定能猜中。</p></blockquote><h3 id="sec-27">练习 4｜水仙花数</h3> <a class="jump" href="#ans-4">参考代码 ↧</a><p>找出 100 ~ 999 之间所有的&quot;水仙花数&quot;：一个三位数，各位数字的立方和等于它本身。例如 <code>153 = 1³ + 5³ + 3³</code>。</p><blockquote><p><strong>提示</strong>：怎么把 <code>n</code> 的百位、十位、个位拆出来？这是导学案2 <code>/</code> 和 <code>%</code> 的综合运用： 百位 <code>n / 100</code>，十位 <code>n / 10 % 10</code>，个位 <code>n % 10</code>。 立方写 <code>a <em> a </em> a</code>，<strong>不要写 <code>a ^ 3</code></strong>（<code>^</code> 不是乘方）。</p></blockquote><h3 id="sec-28">练习 5｜倒三角形</h3> <a class="jump" href="#ans-5">参考代码 ↧</a><p>读入行数 <code>n</code>，打印一个倒直角三角形。例如 <code>n = 4</code>：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">****
+***
+**
+*</code></pre></div><blockquote><p><strong>选做</strong>：改成打印菱形（上半部分星星递增，下半部分递减）。这题练的是&quot;行号 i 和星星个数 j 之间的关系&quot;，想清楚 <code>j &lt;= i</code> 该换成什么。</p></blockquote><h3 id="sec-29">练习 6｜找错题</h3> <a class="jump" href="#ans-6">参考代码 ↧</a><p>下面这段代码有 <strong>4 处错误</strong>，先圈出来再改对。（放心，它能运行完，不会卡死。）</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 反面示例：有 4 处错误 */</span>
+<span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> n = <span class="tk-num">0</span>;
+	<span class="tk-kw">int</span> sum;                        <span class="tk-com">/* 错误 1 */</span>
+	<span class="tk-kw">int</span> i = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入 n：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;n);
+
+	<span class="tk-kw">for</span> (i = <span class="tk-num">1</span>; i &lt;= n; i++);       <span class="tk-com">/* 错误 2 */</span>
+	{
+		sum += i;
+	}
+
+	<span class="tk-kw">if</span> (sum = <span class="tk-num">0</span>) {                  <span class="tk-com">/* 错误 3 */</span>
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;和为 0\n&quot;</span>);
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;平均值 = %d\n&quot;</span>, sum / n);   <span class="tk-com">/* 错误 4 */</span>
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><h3 id="sec-30">练习 7（选做）｜100 以内的素数</h3><p>打印 100 以内所有素数。</p><blockquote><p><strong>提示</strong>：需要一个新的思路——<strong>标志变量（flag）</strong>：先假设它是素数（<code>isPrime = 1</code>），一旦找到因子就把它改成 0，并且 <code>break</code>。 内层循环只需要试到 <code>i <em> i &lt;= n</code> 就够了，想想为什么（如果 <code>n = a </em> b</code>，那 <code>a</code> 和 <code>b</code> 里必有一个不超过 √n）。 这个 flag 的写法，导学案5在数组里查找元素时会原样用到。</p></blockquote><hr><h2 id="sec-31">4.7 本节小结与自查</h2><p><strong>学完本节，你应该能做到：</strong></p><ul><li>[ ] 说出循环的三要素，并能在自己写完循环后逐条对照检查</li><li>[ ] 用 <code>while</code> 和 <code>for</code> 写同一个逻辑，说清两者的执行顺序和适用场景</li><li>[ ] 解释 <code>do-while</code> 与 <code>while</code> 的唯一区别，并知道它适合什么场景</li><li>[ ] 说清 <code>break</code> 和 <code>continue</code> 的区别，知道嵌套循环里 <code>break</code> 只跳出一层</li><li>[ ] 读懂两层嵌套循环，能说出&quot;外层走一步，内层走一整圈&quot;</li><li>[ ] 亲手制造过一次死循环，并且知道怎么把它停下来</li><li>[ ] 卡住时知道用最朴素的办法调试：把 <code>i</code>、<code>j</code> 打印出来看</li></ul><blockquote><p><strong>下一节</strong>：导学案5 · 数组。终于可以让程序<strong>记住一串数据</strong>了——这是你在 STM32 上处理传感器数据的第一步。</p></blockquote><h2 id="sec-32">4.8 练习参考代码（做完再看）</h2><details class="ans" id="ans-1"><summary class="ans-title">练习 1 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> n = <span class="tk-num">0</span>;
+	<span class="tk-kw">int</span> sum = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入 n：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;n);
+
+	<span class="tk-kw">if</span> (n &lt;= <span class="tk-num">0</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;n 必须是正整数\n&quot;</span>);
+	} <span class="tk-kw">else</span> {
+		<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">1</span>; i &lt;= n; i++) {
+			sum += i;
+		}
+
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;1 到 %d 的和 = %d\n&quot;</span>, n, sum);
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;平均值 = %.2f\n&quot;</span>, (<span class="tk-kw">double</span>)sum / n);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div></details><details class="ans" id="ans-2"><summary class="ans-title">练习 2 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> n = <span class="tk-num">0</span>;
+	<span class="tk-kw">long</span> <span class="tk-kw">long</span> fact = <span class="tk-num">1</span>;        <span class="tk-com">/* 累乘器，从 1 开始；用 long long 能撑到 20! */</span>
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入 n：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;n);
+
+	<span class="tk-kw">if</span> (n &lt; <span class="tk-num">0</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;负数没有阶乘\n&quot;</span>);
+	} <span class="tk-kw">else</span> {
+		<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">1</span>; i &lt;= n; i++) {
+			fact *= i;
+		}
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d! = %lld\n&quot;</span>, n, fact);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div></details><details class="ans" id="ans-3"><summary class="ans-title">练习 3 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> answer = <span class="tk-num">0</span>;
+	<span class="tk-kw">int</span> guess = -<span class="tk-num">1</span>;
+	<span class="tk-kw">int</span> count = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请第一位同学输入谜底（1~100，别人别偷看）：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;answer);
+
+	<span class="tk-kw">while</span> (count &lt; <span class="tk-num">7</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;还剩 %d 次，请猜：&quot;</span>, <span class="tk-num">7</span> - count);
+		<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;guess);
+		count++;
+
+		<span class="tk-kw">if</span> (guess == answer) {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;猜对了！一共猜了 %d 次\n&quot;</span>, count);
+			<span class="tk-kw">break</span>;
+		} <span class="tk-kw">else</span> <span class="tk-kw">if</span> (guess &gt; answer) {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;大了\n&quot;</span>);
+		} <span class="tk-kw">else</span> {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;小了\n&quot;</span>);
+		}
+	}
+
+	<span class="tk-kw">if</span> (guess != answer) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;次数用完了，谜底是 %d\n&quot;</span>, answer);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div></details><details class="ans" id="ans-4"><summary class="ans-title">练习 4 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> n = <span class="tk-num">100</span>; n &lt;= <span class="tk-num">999</span>; n++) {
+		<span class="tk-kw">int</span> a = n / <span class="tk-num">100</span>;           <span class="tk-com">/* 百位 */</span>
+		<span class="tk-kw">int</span> b = n / <span class="tk-num">10</span> % <span class="tk-num">10</span>;       <span class="tk-com">/* 十位 */</span>
+		<span class="tk-kw">int</span> c = n % <span class="tk-num">10</span>;            <span class="tk-com">/* 个位 */</span>
+
+		<span class="tk-kw">if</span> (a * a * a + b * b * b + c * c * c == n) {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d\n&quot;</span>, n);
+		}
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出（一共四个）：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">153
+370
+371
+407</code></pre></div></details><details class="ans" id="ans-5"><summary class="ans-title">练习 5 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> n = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入行数：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;n);
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = n; i &gt;= <span class="tk-num">1</span>; i--) {
+		<span class="tk-kw">for</span> (<span class="tk-kw">int</span> j = <span class="tk-num">1</span>; j &lt;= i; j++) {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;*&quot;</span>);
+		}
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div></details><details class="ans" id="ans-6"><summary class="ans-title">练习 6 参考答案</summary><div class="table-wrap"><table><thead><tr><th>#</th><th>错在哪</th><th>怎么改</th></tr></thead><tbody><tr><td>1</td><td><code>sum</code> 没初始化，里面是垃圾值</td><td><code>int sum = 0;</code></td></tr><tr><td>2</td><td><code>for</code> 后面多了个分号，循环体是空的；花括号里的 <code>sum += i</code> 只执行了一次</td><td>删掉那个分号</td></tr><tr><td>3</td><td><code>=</code> 是赋值，把 <code>sum</code> 改成了 0，还让条件恒为假</td><td><code>if (sum == 0)</code></td></tr><tr><td>4</td><td>整数除法，平均值的小数部分被砍掉了</td><td><code>printf(&quot;平均值 = %.2f\n&quot;, (double)sum / n);</code></td></tr></tbody></table></div><p>改完之后请输入 <code>n = 4</code> 自测：和应该是 10，平均值应该是 2.50。</p></details><details class="ans" id="ans-7"><summary class="ans-title">练习 7 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> n = <span class="tk-num">2</span>; n &lt;= <span class="tk-num">100</span>; n++) {
+		<span class="tk-kw">int</span> isPrime = <span class="tk-num">1</span>;                   <span class="tk-com">/* 1 = 先假设是素数 */</span>
+
+		<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">2</span>; i * i &lt;= n; i++) {
+			<span class="tk-kw">if</span> (n % i == <span class="tk-num">0</span>) {
+				isPrime = <span class="tk-num">0</span>;               <span class="tk-com">/* 找到因子，推翻假设 */</span>
+				<span class="tk-kw">break</span>;
+			}
+		}
+
+		<span class="tk-kw">if</span> (isPrime) {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d &quot;</span>, n);
+		}
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><hr></details>
+</article>
+<footer class="doc-footer"><p>循环是程序第一次拥有&quot;耐心&quot;。它不会累，不会烦，也不会因为你让它做一万遍就抗议。</p><p>但请注意：<strong>它同样不会替你思考。</strong> 圈数差一个、条件写反一个符号，它就老老实实地错一万遍。所以请把&quot;三要素检查&quot;变成肌肉记忆。</p><p><small>作者：Mike-lin300</small></p><p><small>最后更新：2026-09-24</small></p><p><small>更新说明：无</small></p><p class="gen">本页由 tools/build.js 生成 · 2026-09-25 10:50 · 源文件 导学案4_循环.md · commit 0b61179</p></footer>
+<nav class="pn"><a href="guide-3.html">← 导学案3 · 判断：让程序学会做选择</a><a href="guide-4x.html">导学案4 · 附加材料：飞控代码里的三个基础技巧（选读） →</a></nav>
+</main>
+<aside class="rail"><div class="rail-box"><div class="rail-title">本页目录</div><ol class="rail-toc"><li class="lv2"><a href="#sec-1">4.0 序</a></li><li class="lv2"><a href="#sec-2">4.1 while 循环</a></li><li class="lv3"><a href="#sec-3">骨架与三要素</a></li><li class="lv3"><a href="#sec-4">demo 1：打印 1 ~ 10</a></li><li class="lv3"><a href="#sec-5">demo 2：累加求和 1 + 2 + ... + 100</a></li><li class="lv3"><a href="#sec-6">while 是&quot;先判断，后执行&quot;</a></li><li class="lv3"><a href="#sec-7">死循环：亲手制造一次</a></li><li class="lv2"><a href="#sec-8">4.2 for 循环</a></li><li class="lv3"><a href="#sec-9">骨架：把 while 的三要素搬到一行</a></li><li class="lv3"><a href="#sec-10">执行顺序</a></li><li class="lv3"><a href="#sec-11">demo：三种常见走法</a></li><li class="lv3"><a href="#sec-12">for 还是 while？</a></li><li class="lv2"><a href="#sec-13">4.3 do-while 循环（用得最少，认识即可）</a></li><li class="lv3"><a href="#sec-14">到底差在哪：一个最小对照</a></li><li class="lv2"><a href="#sec-15">4.4 break 与 continue</a></li><li class="lv3"><a href="#sec-16">break：找到就收工</a></li><li class="lv3"><a href="#sec-17">continue：跳过这一圈</a></li><li class="lv3"><a href="#sec-18">两点边界</a></li><li class="lv2"><a href="#sec-19">4.5 嵌套循环</a></li><li class="lv3"><a href="#sec-20">demo 1：直角三角形</a></li><li class="lv3"><a href="#sec-21">demo 2：九九乘法表</a></li><li class="lv3"><a href="#sec-22">一个最朴素也最有效的调试技巧</a></li><li class="lv2"><a href="#sec-23">4.6 综合练习</a></li><li class="lv3"><a href="#sec-24">练习 1｜求和与平均值</a></li><li class="lv3"><a href="#sec-25">练习 2｜阶乘</a></li><li class="lv3"><a href="#sec-26">练习 3｜猜数字（两个人玩）</a></li><li class="lv3"><a href="#sec-27">练习 4｜水仙花数</a></li><li class="lv3"><a href="#sec-28">练习 5｜倒三角形</a></li><li class="lv3"><a href="#sec-29">练习 6｜找错题</a></li><li class="lv3"><a href="#sec-30">练习 7（选做）｜100 以内的素数</a></li><li class="lv2"><a href="#sec-31">4.7 本节小结与自查</a></li><li class="lv2"><a href="#sec-32">4.8 练习参考代码（做完再看）</a></li><li class="lv3"><a href="#ans-1">练习 1 参考代码</a></li><li class="lv3"><a href="#ans-2">练习 2 参考代码</a></li><li class="lv3"><a href="#ans-3">练习 3 参考代码</a></li><li class="lv3"><a href="#ans-4">练习 4 参考代码</a></li><li class="lv3"><a href="#ans-5">练习 5 参考代码</a></li><li class="lv3"><a href="#ans-6">练习 6 参考答案</a></li><li class="lv3"><a href="#ans-7">练习 7 参考代码</a></li></ol></div></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

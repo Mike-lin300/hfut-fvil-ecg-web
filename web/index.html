@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>首页 · 飞行器创新实验室 C 语言导学</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="top"><a class="brand" href="index.html">HFUT AircraftLab · C 语言导学</a><span class="stamp">生成于 2026-09-25 10:50 · 0b61179</span></header>
+<div class="layout">
+<nav class="side"><details open class="sidenav"><summary>全站目录</summary><ul><li><a href="guide-0.html"><span class="k">选读</span>0 计算机扫盲课</a></li><li><a href="guide-1.html"><span class="k">导学</span>1 认识 C 语言与开发环境</a></li><li><a href="guide-2.html"><span class="k">导学</span>2 输出、计算与输入</a></li><li><a href="guide-3.html"><span class="k">导学</span>3 判断：让程序学会做选择</a></li><li><a href="guide-4.html"><span class="k">导学</span>4 循环：让程序学会重复</a></li><li><a href="guide-4x.html"><span class="k">选读</span>4附加 附加材料：飞控代码里的三个基础技巧（选读）</a></li><li><a href="guide-5.html"><span class="k">导学</span>5 数组：让程序记住一串数据</a></li><li><a href="guide-6.html"><span class="k">导学</span>6 函数：把重复的逻辑打包</a></li><li><a href="guide-7.html"><span class="k">导学</span>7 指针：地址这门手艺</a></li><li><a href="guide-8.html"><span class="k">导学</span>8 结构体：把数据捆成一个整体</a></li><li><a href="hw-1.html"><span class="k">作业</span>1 顺序、判断、循环与数组</a></li><li><a href="hw-2.html"><span class="k">作业</span>2 函数、指针、结构体与字符串</a></li><li><a href="app-1.html"><span class="k">附录</span>1 CMD 速查表</a></li><li><a href="app-2.html"><span class="k">附录</span>2 主控代码（飞控）</a></li></ul></details></nav>
+<main class="content">
+
+
+<article>
+<h1>飞行器创新实验室 · C 语言导学</h1><p>本站由 Markdown 源文件自动生成（<code>tools/build.js</code>，零依赖）。<strong>md 是唯一真源</strong>，<code>web/</code> 里的一切都是生成物，请勿手改。</p><blockquote><p><strong>怎么用</strong>：按下面的顺序读。每篇文末的"练习参考代码"默认折叠，<em>做完之前不要展开</em>。练习不强制完成、不需要提交；需要提交的是作业一 / 作业二。</p><p><strong>阅读器</strong>：纯静态 HTML，双击用 Edge / Chrome 打开即可，断网可用；源 md 在随包目录里，用 Typora 等阅读器同样可读。</p></blockquote><h2 id="sec-1">学习路线</h2><div class="table-wrap"><table><thead><tr><th>类别</th><th>篇目</th><th>内容</th></tr></thead><tbody><tr><td><span class="k k-选读">选读</span></td><td><a href="guide-0.html">导学案0 · 计算机扫盲课</a></td><td>计算机扫盲，会电脑可跳过</td></tr><tr><td><span class="k k-导学">导学</span></td><td><a href="guide-1.html">导学案1 · 认识 C 语言与开发环境</a></td><td>开发环境 + Hello World</td></tr><tr><td><span class="k k-导学">导学</span></td><td><a href="guide-2.html">导学案2 · 输出、计算与输入</a></td><td>printf / scanf / 变量 / 运算</td></tr><tr><td><span class="k k-导学">导学</span></td><td><a href="guide-3.html">导学案3 · 判断：让程序学会做选择</a></td><td>if / else if / switch</td></tr><tr><td><span class="k k-导学">导学</span></td><td><a href="guide-4.html">导学案4 · 循环：让程序学会重复</a></td><td>while / for / 嵌套循环</td></tr><tr><td><span class="k k-选读">选读</span></td><td><a href="guide-4x.html">导学案4 · 附加材料：飞控代码里的三个基础技巧（选读）</a></td><td>飞控三技巧：状态机 / 单次执行 / 分频</td></tr><tr><td><span class="k k-导学">导学</span></td><td><a href="guide-5.html">导学案5 · 数组：让程序记住一串数据</a></td><td>一维 / 二维 / 字符串初步</td></tr><tr><td><span class="k k-导学">导学</span></td><td><a href="guide-6.html">导学案6 · 函数：把重复的逻辑打包</a></td><td>函数与值传递</td></tr><tr><td><span class="k k-导学">导学</span></td><td><a href="guide-7.html">导学案7 · 指针：地址这门手艺</a></td><td>地址 / 解引用 / 数组名是指针</td></tr><tr><td><span class="k k-导学">导学</span></td><td><a href="guide-8.html">导学案8 · 结构体：把数据捆成一个整体</a></td><td>结构体与 -&gt;</td></tr><tr><td><span class="k k-作业">作业</span></td><td><a href="hw-1.html">作业一（第一期）· 顺序、判断、循环与数组</a></td><td>第一期：顺序 ~ 数组</td></tr><tr><td><span class="k k-作业">作业</span></td><td><a href="hw-2.html">作业二（第二期）· 函数、指针、结构体与字符串</a></td><td>第二期：函数 ~ 结构体</td></tr><tr><td><span class="k k-附录">附录</span></td><td><a href="app-1.html">Windows CMD 常用指令速查手册</a></td><td>CMD 速查表</td></tr><tr><td><span class="k k-附录">附录</span></td><td><a href="app-2.html">附录二 · 主控代码 ZXH_FlightCtrl.c</a></td><td>真实飞控主控代码（代码阅读页）</td></tr></tbody></table></div><h2 id="sec-2">给维护者</h2><ul><li>改完 md 双击 <code>tools\build.bat</code> 重建；构建报告见 <code>web/build-report.txt</code>。</li><li>页脚与顶栏的"生成时间 + commit 哈希"用来识别旧站。</li><li>本站是实验室官网的雏形：<code>manifest.json</code> 与 slug 规划可平移到 Django / Flask。</li></ul>
+</article>
+
+<nav class="pn"><span></span><span></span></nav>
+</main>
+<aside class="rail"></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

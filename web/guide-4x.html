@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>导学案4 · 附加材料：飞控代码里的三个基础技巧（选读） · 飞行器创新实验室 C 语言导学</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="top"><a class="brand" href="index.html">HFUT AircraftLab · C 语言导学</a><span class="stamp">生成于 2026-09-25 10:50 · 0b61179</span></header>
+<div class="layout">
+<nav class="side"><details open class="sidenav"><summary>全站目录</summary><ul><li><a href="guide-0.html"><span class="k">选读</span>0 计算机扫盲课</a></li><li><a href="guide-1.html"><span class="k">导学</span>1 认识 C 语言与开发环境</a></li><li><a href="guide-2.html"><span class="k">导学</span>2 输出、计算与输入</a></li><li><a href="guide-3.html"><span class="k">导学</span>3 判断：让程序学会做选择</a></li><li><a href="guide-4.html"><span class="k">导学</span>4 循环：让程序学会重复</a></li><li class="cur"><a href="guide-4x.html"><span class="k">选读</span>4附加 附加材料：飞控代码里的三个基础技巧（选读）</a></li><li><a href="guide-5.html"><span class="k">导学</span>5 数组：让程序记住一串数据</a></li><li><a href="guide-6.html"><span class="k">导学</span>6 函数：把重复的逻辑打包</a></li><li><a href="guide-7.html"><span class="k">导学</span>7 指针：地址这门手艺</a></li><li><a href="guide-8.html"><span class="k">导学</span>8 结构体：把数据捆成一个整体</a></li><li><a href="hw-1.html"><span class="k">作业</span>1 顺序、判断、循环与数组</a></li><li><a href="hw-2.html"><span class="k">作业</span>2 函数、指针、结构体与字符串</a></li><li><a href="app-1.html"><span class="k">附录</span>1 CMD 速查表</a></li><li><a href="app-2.html"><span class="k">附录</span>2 主控代码（飞控）</a></li></ul></details></nav>
+<main class="content">
+<h1 class="doctitle">导学案4 · 附加材料：飞控代码里的三个基础技巧（选读）</h1><dl class="doc-meta"><dt>前置要求</dt><dd>导学案4之前（会 while / for / switch / if）</dd><dt>参考课程</dt><dd>无（实验室自制，配套 <code>附录二_主控代码\ZXH_FlightCtrl.c</code>）</dd><dt>预计用时</dt><dd>1 小时</dd><dt>本节目标</dt><dd>认识飞控代码里三个最基础的技巧：状态机、单次执行、计数器分频</dd><dt>选读说明</dt><dd>这是选读材料，看不懂不影响后续学习。目的是分享变成经验，让你<strong>产生概念</strong>。</dd></dl>
+<details class="toc toc-top"><summary>本页目录</summary><ol><li class="lv2"><a href="#sec-1">附.0 先看一眼真实代码长什么样</a></li><li class="lv2"><a href="#sec-2">附.1 主循环：单片机的程序是怎么跑的</a></li><li class="lv2"><a href="#sec-3">附.2 技巧一：状态机（switch + 状态变量）</a></li><li class="lv2"><a href="#sec-4">附.3 技巧二：单次执行（进入状态时只做一次的事）</a></li><li class="lv2"><a href="#sec-5">附.4 技巧三：计数器分频（一句话版）</a></li><li class="lv2"><a href="#sec-6">附.5 三个技巧合起来：回去看真实代码</a></li><li class="lv2"><a href="#sec-7">附.6 小结</a></li></ol></details>
+<article>
+<hr><h2 id="sec-1">附.0 先看一眼真实代码长什么样</h2><p><code>附录二_主控代码\ZXH_FlightCtrl.c</code> 是实验室真实飞控的<strong>主控任务</strong>：一键起飞 → 短悬停 → 飞四个航点画一个正方形 → 回到原点 → 降落。</p><p>它有两百多行、一堆没见过的函数名，看起来很吓人，而且它只是飞控众多代码文件中的一个单文件。但它的骨架只有三样东西，<strong>全部是你已经学过的</strong>：<code>while</code> 循环、<code>switch</code>、<code>if</code>。</p><p>这一节我们用终端代替传感器和电机（&quot;读高度&quot;换成一个变量自加，&quot;控制电机&quot;换成 <code>printf</code>），把这三个技巧各演一遍，最后回去对照真实代码。</p><hr><h2 id="sec-2">附.1 主循环：单片机的程序是怎么跑的</h2><p>电脑上的程序&quot;跑完就退出&quot;。单片机上的程序<strong>永远不退出</strong>：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">while</span> (<span class="tk-num">1</span>) {
+	<span class="tk-com">/* 读传感器 -&gt; 做决策 -&gt; 输出控制 */</span>
+}</code></pre></div><p>每圈之间隔几毫秒（飞控里常见 1ms、5ms、10ms），一圈叫一个<strong>周期</strong>。飞机在天上时你绝不允许程序退出，所以这个死循环是<strong>必需品</strong>，不是 bug——导学案4讲死循环时留下的那句话，在这里兑现。</p><p>在电脑上怎么演示一个&quot;会退出的主循环&quot;？加一个退出条件就行：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> tick = <span class="tk-num">0</span>;
+
+	<span class="tk-kw">while</span> (<span class="tk-num">1</span>) {
+		tick++;
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;第 %d 圈：读传感器 -&gt; 做决策 -&gt; 输出控制\n&quot;</span>, tick);
+		<span class="tk-kw">if</span> (tick &gt;= <span class="tk-num">3</span>) {
+			<span class="tk-kw">break</span>;          <span class="tk-com">/* 电脑上演示用；单片机上不存在这一句 */</span>
+		}
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">第 1 圈：读传感器 -&gt; 做决策 -&gt; 输出控制
+第 2 圈：读传感器 -&gt; 做决策 -&gt; 输出控制
+第 3 圈：读传感器 -&gt; 做决策 -&gt; 输出控制</code></pre></div><p>后面要讲的三个技巧，<strong>全都发生在这个循环里面</strong>。</p><hr><h2 id="sec-3">附.2 技巧一：状态机（switch + 状态变量）</h2><p><strong>问题</strong>：任务是一步一步的（先起飞、再悬停、再前进、再降落），但主循环是<strong>反复执行</strong>的。怎么让&quot;起飞&quot;这个阶段执行很多圈、完成之后自动进入下一阶段？</p><p><strong>答案</strong>：用一个变量记录&quot;现在在第几步&quot;，每圈用 <code>switch</code> 按它选择要执行的代码块；条件满足时把它改成下一步。这个变量叫<strong>状态变量</strong>，改它的动作叫<strong>状态迁移</strong>。</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> state = <span class="tk-num">0</span>;        <span class="tk-com">/* 0 起飞, 1 悬停, 2 前进, 3 降落, 99 结束 */</span>
+	<span class="tk-kw">int</span> height = <span class="tk-num">0</span>;       <span class="tk-com">/* 模拟高度 cm */</span>
+	<span class="tk-kw">int</span> front = <span class="tk-num">0</span>;        <span class="tk-com">/* 模拟前进距离 cm */</span>
+	<span class="tk-kw">int</span> count = <span class="tk-num">0</span>;        <span class="tk-com">/* 每个状态自己的计数器 */</span>
+
+	<span class="tk-kw">while</span> (<span class="tk-num">1</span>) {
+		count++;
+
+		<span class="tk-kw">switch</span> (state) {
+			<span class="tk-kw">case</span> <span class="tk-num">0</span>:                                  <span class="tk-com">/* 起飞 */</span>
+				height += <span class="tk-num">20</span>;
+				<span class="tk-fn">printf</span>(<span class="tk-str">&quot;起飞中…… 高度 %d cm\n&quot;</span>, height);
+				<span class="tk-kw">if</span> (height &gt;= <span class="tk-num">100</span>) {
+					state = <span class="tk-num">1</span>;
+					count = <span class="tk-num">0</span>;
+				}
+				<span class="tk-kw">break</span>;
+
+			<span class="tk-kw">case</span> <span class="tk-num">1</span>:                                  <span class="tk-com">/* 悬停 */</span>
+				<span class="tk-fn">printf</span>(<span class="tk-str">&quot;悬停中…… 第 %d 圈\n&quot;</span>, count);
+				<span class="tk-kw">if</span> (count &gt;= <span class="tk-num">3</span>) {
+					state = <span class="tk-num">2</span>;
+					count = <span class="tk-num">0</span>;
+				}
+				<span class="tk-kw">break</span>;
+
+			<span class="tk-kw">case</span> <span class="tk-num">2</span>:                                  <span class="tk-com">/* 前进 */</span>
+				front += <span class="tk-num">50</span>;
+				<span class="tk-fn">printf</span>(<span class="tk-str">&quot;前进中…… 已飞 %d cm\n&quot;</span>, front);
+				<span class="tk-kw">if</span> (front &gt;= <span class="tk-num">150</span>) {
+					state = <span class="tk-num">3</span>;
+					count = <span class="tk-num">0</span>;
+				}
+				<span class="tk-kw">break</span>;
+
+			<span class="tk-kw">case</span> <span class="tk-num">3</span>:                                  <span class="tk-com">/* 降落 */</span>
+				height -= <span class="tk-num">25</span>;
+				<span class="tk-fn">printf</span>(<span class="tk-str">&quot;降落中…… 高度 %d cm\n&quot;</span>, height);
+				<span class="tk-kw">if</span> (height &lt;= <span class="tk-num">0</span>) {
+					state = <span class="tk-num">99</span>;
+				}
+				<span class="tk-kw">break</span>;
+
+			<span class="tk-kw">default</span>:
+				<span class="tk-kw">break</span>;
+		}
+
+		<span class="tk-kw">if</span> (state == <span class="tk-num">99</span>) {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;任务完成，程序退出\n&quot;</span>);
+			<span class="tk-kw">break</span>;
+		}
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">起飞中…… 高度 20 cm
+起飞中…… 高度 40 cm
+起飞中…… 高度 60 cm
+起飞中…… 高度 80 cm
+起飞中…… 高度 100 cm
+悬停中…… 第 1 圈
+悬停中…… 第 2 圈
+悬停中…… 第 3 圈
+前进中…… 已飞 50 cm
+前进中…… 已飞 100 cm
+前进中…… 已飞 150 cm
+降落中…… 高度 75 cm
+降落中…… 高度 50 cm
+降落中…… 高度 25 cm
+降落中…… 高度 0 cm
+任务完成，程序退出</code></pre></div><p>读这段代码的方法：<strong>盯着 <code>state</code> 看。</strong> 它从 0 开始，每圈 <code>switch</code> 选中对应的 <code>case</code>；<code>height &gt;= 100</code> 成立时 <code>state = 1</code>，下一圈就进入悬停。每个 <code>case</code> 里都是同一套结构：干活 → 判断条件 → 条件满足就迁移状态。</p><p>为什么不用 <code>if - else if</code>？也能写。但状态一多（真实代码有 7 个状态），<code>switch</code> 的表格感更清楚，而且每个 <code>case</code> 自带 <code>break</code>，不容易串。</p><p><strong>对照真实代码</strong>：<code>switch (OrdinalNum)</code> 就是它。<code>case 0</code> 一键起飞、<code>case 1</code> 短悬停、<code>case 2 ~ 5</code> 是正方形的四条边（四个航点）、<code>case 99</code> 降落；<code>OrdinalNum++</code> 就是状态迁移。<strong>骨架和上面这个 demo 一模一样</strong>，只是把 <code>printf</code> 换成了真的控制函数。</p><hr><h2 id="sec-4">附.3 技巧二：单次执行（进入状态时只做一次的事）</h2><p><strong>问题</strong>：主循环每圈都会跑 <code>case</code> 里的代码。但有些事<strong>只该做一次</strong>——进入悬停状态时把计时器清零、切换模式时发一条通知。写成普通语句，就会每圈都做一遍。</p><p><strong>办法</strong>：一个标志变量，初值 1；进来时判断它，成立就把要做的事做完、然后<strong>立刻把标志关掉</strong>。于是这段代码在整个任务期间只会执行一次。</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> flag = <span class="tk-num">1</span>;         <span class="tk-com">/* 单次执行标志 */</span>
+	<span class="tk-kw">int</span> count = <span class="tk-num">0</span>;
+
+	<span class="tk-kw">while</span> (count &lt; <span class="tk-num">5</span>) {
+		count++;
+
+		<span class="tk-kw">if</span> (flag == <span class="tk-num">1</span>) {
+			flag = <span class="tk-num">0</span>;
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;第 %d 圈：进入任务，做一次初始化（这句只会出现一次）\n&quot;</span>, count);
+		}
+
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;第 %d 圈：执行任务的常规动作\n&quot;</span>, count);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">第 1 圈：进入任务，做一次初始化（这句只会出现一次）
+第 1 圈：执行任务的常规动作
+第 2 圈：执行任务的常规动作
+第 3 圈：执行任务的常规动作
+第 4 圈：执行任务的常规动作
+第 5 圈：执行任务的常规动作</code></pre></div><p>真实代码里每个 <code>case</code> 的开头都是这个形状，一模一样：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 片段：ZXH_FlightCtrl.c 中 case 1（短悬停）的开头 */</span>
+<span class="tk-kw">if</span> (SFlag == <span class="tk-num">1</span>)
+{
+	SFlag = <span class="tk-num">0</span>;                 <span class="tk-com">/* 关掉标志，下次进来就不成立了 */</span>
+	TaskTimer_ms = <span class="tk-num">0</span>;          <span class="tk-com">/* 只执行一次的初始化 */</span>
+	TaskConfirmCount = <span class="tk-num">0</span>;
+}</code></pre></div><p>类型与命名小注：真实代码用 <code>unsigned char SFlag</code>（1 字节，省内存），单片机代码里常写成 <code>u8</code>；变量名也多是 <code>SFlag</code>、<code>TaskConfirmCount</code> 这类缩写，属于嵌入式的老习惯。<strong>这些都不用模仿</strong>——教学阶段统一用 <code>int</code> 和导学案2 的命名规则，道理完全一样；等你真上单片机，再按项目规范切换。</p><hr><h2 id="sec-5">附.4 技巧三：计数器分频（一句话版）</h2><p>主循环每 1ms 跑一圈，但不是所有事都要每圈做：有的要&quot;每 100ms 发一次数据&quot;，有的要&quot;连续确认 200 次到位才算真到位&quot;（防止传感器偶尔抽风造成误判）。办法就是<strong>数圈数</strong>。三种常见写法：</p><div class="table-wrap"><table><thead><tr><th>想做的事</th><th>写法</th></tr></thead><tbody><tr><td>每 N 圈做一次</td><td><code>if (tick % N == 0) { ... }</code></td></tr><tr><td>累计够 T 毫秒做一次</td><td><code>timer += dT_ms; if (timer &gt;= T) { ...; timer = 0; }</code></td></tr><tr><td>连续 N 次满足条件才认</td><td><code>if (条件) count++; else count = 0;</code> 然后 <code>if (count &gt;= N) { ... }</code></td></tr></tbody></table></div><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> tick = <span class="tk-num">1</span>; tick &lt;= <span class="tk-num">10</span>; tick++) {
+		<span class="tk-kw">if</span> (tick % <span class="tk-num">3</span> == <span class="tk-num">0</span>) {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;第 %2d 圈：发送一次数据\n&quot;</span>, tick);
+		}
+	}
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">第  3 圈：发送一次数据
+第  6 圈：发送一次数据
+第  9 圈：发送一次数据</code></pre></div><p>真实代码里三样都在：<code>TaskTimer_ms += dT_ms;</code> 配 <code>if (TaskTimer_ms &lt;= 5000)</code> 是&quot;悬停满 5 秒&quot;；<code>ZGS_tm1 = TaskTimer_ms / 100;</code> 是把毫秒换算成 0.1 秒发上去显示；<code>if (TaskConfirmCount &gt;= 200)</code> 是&quot;连续 200 次确认到位才切下一个航点&quot;。</p><hr><h2 id="sec-6">附.5 三个技巧合起来：回去看真实代码</h2><div class="table-wrap"><table><thead><tr><th>我们的 demo</th><th><code>ZXH_FlightCtrl.c</code> 里</th><th>是什么</th></tr></thead><tbody><tr><td><code>int state</code></td><td><code>unsigned char OrdinalNum</code></td><td>状态变量</td></tr><tr><td><code>switch (state)</code></td><td><code>switch (OrdinalNum)</code></td><td>状态机</td></tr><tr><td><code>state = 1;</code></td><td><code>OrdinalNum++;</code></td><td>状态迁移</td></tr><tr><td><code>int flag = 1;</code></td><td><code>unsigned char SFlag = 1;</code></td><td>单次执行标志</td></tr><tr><td><code>count++</code> / <code>count &gt;= 3</code></td><td><code>TaskConfirmCount++</code> / <code>&gt;= 200</code></td><td>计数器</td></tr><tr><td><code>printf(...)</code></td><td><code>LZY_DataSand_F3(0x01)</code> 等</td><td>&quot;输出&quot;：真实代码是往串口发数据</td></tr><tr><td><code>height</code>、<code>front</code></td><td><code>rplidar_st.x / y / yaw</code></td><td>&quot;输入&quot;：真实代码是激光雷达的读数</td></tr></tbody></table></div><p><strong>动手做一件事</strong>：打开 <code>附录二_主控代码\ZXH_FlightCtrl.c</code>，找到 <code>case 1:</code>（短悬停）那一段，逐行认一认——哪句是单次执行？哪句在数时间？哪句是状态迁移？认出这三个，这份两百行的文件对你就不再是天书。</p><p><strong>再动手改一改（选做）</strong>：给附.2 的 demo 加一个 <code>state = 4</code> 的&quot;返航&quot;状态（<code>front</code> 从 150 一路减回 0），返航完成后再进入降落。加完你就亲手写过一个 5 状态的状态机了。</p><blockquote><p>所谓飞控主任务，就是&quot;<strong>一个死循环里跑一个状态机</strong>&quot;。 你导学案4学的 <code>while</code> + <code>switch</code> + <code>if</code>，已经够写出它的骨架了。剩下的只是把 <code>printf</code> 换成真的硬件操作——那是下一门课的事。</p></blockquote><hr><h2 id="sec-7">附.6 小结</h2><p><strong>读完本节，你应该能做到：</strong></p><ul><li>[ ] 说清单片机主循环为什么是 <code>while (1)</code>，以及一圈里做的三件事</li><li>[ ] 用自己的话说清状态机三要素：状态变量、<code>switch</code> 分派、状态迁移</li><li>[ ] 写出&quot;单次执行&quot;的三行模板，并说清标志为什么先置 1、用完立刻置 0</li><li>[ ] 认出计数器分频的三种写法，知道&quot;连续 N 次确认&quot;是防什么</li><li>[ ] 在 <code>ZXH_FlightCtrl.c</code> 里指出状态变量、单次执行标志、计数器分别是谁</li></ul><hr>
+</article>
+<footer class="doc-footer"><p>这一节没有新语法。你看到的每一个符号，都来自导学案1到导学案4。</p><p>但把它们拼在一起，就是一架飞机能自己飞完一条航线的全部秘密。</p><p><small>作者：Mike-lin300</small></p><p><small>最后更新：2026-09-25</small></p><p><small>更新说明：主控代码框架参考来自于实验室 <code>24-电气-赵煦华</code> 学长</small></p><p class="gen">本页由 tools/build.js 生成 · 2026-09-25 10:50 · 源文件 （选读）导学案4_附加材料.md · commit 0b61179</p></footer>
+<nav class="pn"><a href="guide-4.html">← 导学案4 · 循环：让程序学会重复</a><a href="guide-5.html">导学案5 · 数组：让程序记住一串数据 →</a></nav>
+</main>
+<aside class="rail"><div class="rail-box"><div class="rail-title">本页目录</div><ol class="rail-toc"><li class="lv2"><a href="#sec-1">附.0 先看一眼真实代码长什么样</a></li><li class="lv2"><a href="#sec-2">附.1 主循环：单片机的程序是怎么跑的</a></li><li class="lv2"><a href="#sec-3">附.2 技巧一：状态机（switch + 状态变量）</a></li><li class="lv2"><a href="#sec-4">附.3 技巧二：单次执行（进入状态时只做一次的事）</a></li><li class="lv2"><a href="#sec-5">附.4 技巧三：计数器分频（一句话版）</a></li><li class="lv2"><a href="#sec-6">附.5 三个技巧合起来：回去看真实代码</a></li><li class="lv2"><a href="#sec-7">附.6 小结</a></li></ol></div></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

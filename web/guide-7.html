@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>导学案7 · 指针：地址这门手艺 · 飞行器创新实验室 C 语言导学</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="top"><a class="brand" href="index.html">HFUT AircraftLab · C 语言导学</a><span class="stamp">生成于 2026-09-25 10:50 · 0b61179</span></header>
+<div class="layout">
+<nav class="side"><details open class="sidenav"><summary>全站目录</summary><ul><li><a href="guide-0.html"><span class="k">选读</span>0 计算机扫盲课</a></li><li><a href="guide-1.html"><span class="k">导学</span>1 认识 C 语言与开发环境</a></li><li><a href="guide-2.html"><span class="k">导学</span>2 输出、计算与输入</a></li><li><a href="guide-3.html"><span class="k">导学</span>3 判断：让程序学会做选择</a></li><li><a href="guide-4.html"><span class="k">导学</span>4 循环：让程序学会重复</a></li><li><a href="guide-4x.html"><span class="k">选读</span>4附加 附加材料：飞控代码里的三个基础技巧（选读）</a></li><li><a href="guide-5.html"><span class="k">导学</span>5 数组：让程序记住一串数据</a></li><li><a href="guide-6.html"><span class="k">导学</span>6 函数：把重复的逻辑打包</a></li><li class="cur"><a href="guide-7.html"><span class="k">导学</span>7 指针：地址这门手艺</a></li><li><a href="guide-8.html"><span class="k">导学</span>8 结构体：把数据捆成一个整体</a></li><li><a href="hw-1.html"><span class="k">作业</span>1 顺序、判断、循环与数组</a></li><li><a href="hw-2.html"><span class="k">作业</span>2 函数、指针、结构体与字符串</a></li><li><a href="app-1.html"><span class="k">附录</span>1 CMD 速查表</a></li><li><a href="app-2.html"><span class="k">附录</span>2 主控代码（飞控）</a></li></ul></details></nav>
+<main class="content">
+<h1 class="doctitle">导学案7 · 指针：地址这门手艺</h1><dl class="doc-meta"><dt>前置要求</dt><dd>导学案6（会写函数，理解&quot;值传递&quot;改不到外面的变量）</dd><dt>参考课程</dt><dd>浙江大学 翁恺《C 语言程序设计》第 9 章（指针）</dd><dt>预计用时</dt><dd>1 ~ 1.5 小时（按需自取）</dd><dt>本节目标</dt><dd>理解指针与地址的对应关系；会用取地址 <code>&amp;</code> 和解引用 <code>*</code>；会用指针让函数改到外面的变量；知道数组名本质是指针</dd></dl>
+<details class="toc toc-top"><summary>本页目录</summary><ol><li class="lv2"><a href="#sec-1">7.0 序</a></li><li class="lv2"><a href="#sec-2">7.1 地址、指针、解引用</a></li><li class="lv2"><a href="#sec-3">7.2 指针在函数里怎么用</a></li><li class="lv3"><a href="#sec-4">终于能改到外面的变量了</a></li><li class="lv3"><a href="#sec-5">一个函数&quot;带回&quot;多个值</a></li><li class="lv3"><a href="#sec-6">顺便解开一个旧谜</a></li><li class="lv2"><a href="#sec-7">7.3 数组名本质是指针</a></li><li class="lv3"><a href="#sec-8">数组作函数参数</a></li><li class="lv2"><a href="#sec-9">7.4 综合练习</a></li><li class="lv2"><a href="#sec-10">7.5 本节小结与自查</a></li><li class="lv2"><a href="#sec-11">7.6 练习参考代码（做完再看）</a></li><li class="lv3"><a href="#ans-1">练习 1 参考代码</a></li><li class="lv3"><a href="#ans-2">练习 2 参考代码</a></li><li class="lv3"><a href="#ans-3">练习 3 参考代码</a></li></ol></details>
+<article>
+<blockquote><p><strong>先说清楚我们对指针的要求。</strong> 指针是 C 语言里名声最吓人的部分，但<strong>我们对它的要求不高：理解概念、会用即可。</strong> 本节不讲二级指针、多级指针，不讲 <code>const</code> 与指针的各种组合，也不讲复杂的指针运算——那些东西很容易把初学者绕晕。 你只需要带走三样东西：<strong>指针存的是地址</strong>、**<code>*p</code> 能顺着地址摸到那个变量<strong>、</strong>把地址传给函数就能改到原件**。</p></blockquote><hr><h2 id="sec-1">7.0 序</h2><p>导学案2里我们说过一句话：<strong>变量 = 内存里一小片有名字的空间，地址是它的门牌号。</strong> 那时 <code>&amp;a</code> 只是个&quot;照做即可&quot;的符号。这一节我们把它变成一件趁手的工具。</p><p>为什么绕不开它？因为单片机上的硬件，本质上就是<strong>一排排固定地址的格子</strong>（寄存器）。想让灯亮、让电机转，就是往某个地址写一个值。指针，就是 C 语言里&quot;按地址操作内存&quot;的唯一手段。</p><p><strong>本节路线</strong>：<code>地址与指针</code> → <code>指针在函数里怎么用</code> → <code>数组名本质是指针</code> → <code>练习</code></p><hr><h2 id="sec-2">7.1 地址、指针、解引用</h2><p>三个动作：</p><div class="table-wrap"><table><thead><tr><th>写法</th><th>名字</th><th>意思</th></tr></thead><tbody><tr><td><code>&amp;a</code></td><td>取地址</td><td>问出变量 <code>a</code> 住在几号门牌</td></tr><tr><td><code>int *p = &amp;a;</code></td><td>定义指针</td><td>造一个<strong>专门存地址</strong>的变量 <code>p</code>，把 <code>a</code> 的门牌抄进去</td></tr><tr><td><code>*p</code></td><td>解引用</td><td>顺着 <code>p</code> 里存的门牌找过去，<strong>访问那个变量本身</strong></td></tr></tbody></table></div><p><code>int *p</code> 表示 p 是一个指针，它指向一个 int。</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> a = <span class="tk-num">10</span>;
+	<span class="tk-kw">int</span> *p = &amp;a;             <span class="tk-com">/* p 里存的是 a 的地址 */</span>
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;a 的值      = %d\n&quot;</span>, a);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;a 的地址    = %p\n&quot;</span>, (<span class="tk-kw">void</span> *)&amp;a);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;p 里存的    = %p\n&quot;</span>, (<span class="tk-kw">void</span> *)p);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;*p（解引用）= %d\n&quot;</span>, *p);
+
+	*p = <span class="tk-num">20</span>;                 <span class="tk-com">/* 顺着地址找到那个盒子，把值改掉 */</span>
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;改完之后 a  = %d\n&quot;</span>, a);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出（地址每次运行、每台机器都不同，下面是其中一次）：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">a 的值      = 10
+a 的地址    = 00000075679FFC44
+p 里存的    = 00000075679FFC44
+*p（解引用）= 10
+改完之后 a  = 20</code></pre></div><p>几点说明：</p><ul><li><code>%p</code> 是打印地址的占位符。输出格式因编译器而异（有的打 <code>0x0061FE1C</code>，有的打 <code>0061FE1C</code>），<strong>认得出&quot;这是一串十六进制的门牌号&quot;就够了</strong>，不要纠结长相。</li><li>最后一行是关键：我们没有碰 <code>a</code> 这个名字，只通过 <code>*p</code> 就把 <code>a</code> 改成了 20。**<code>*p</code> 和 <code>a</code> 是同一个盒子的两种叫法。**</li><li><code>int <em>p</code> 里的 <code></em></code> 只在<strong>定义</strong>时表示&quot;这是个指针&quot;；定义之后，<code>*p</code> 才是解引用。同一个符号两个场合两种意思，和数组的 <code>[5]</code> 一样。</li></ul><p><strong>野指针警告</strong>：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 反面示例 */</span>
+<span class="tk-kw">int</span> *p;          <span class="tk-com">/* 没初始化，里面是个垃圾地址 */</span>
+*p = <span class="tk-num">5</span>;          <span class="tk-com">/* 往一个不知道是谁家的门牌里塞东西 */</span></code></pre></div><p>这可能当场崩溃，也可能悄悄改掉别的变量。**规矩只有一条：定义指针时就给它一个地址；暂时没有，就写 <code>int <em>p = NULL;</code></em>*（<code>NULL</code> 表示&quot;不指向任何东西&quot;）。</p><hr><h2 id="sec-3">7.2 指针在函数里怎么用</h2><h3 id="sec-4">终于能改到外面的变量了</h3><p>回收导学案6 6.4 那个失败的 <code>swap</code>。这次传地址：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">void</span> <span class="tk-fn">swap</span>(<span class="tk-kw">int</span> *pa, <span class="tk-kw">int</span> *pb)      <span class="tk-com">/* 形参是两个指针：收到的是地址 */</span>
+{
+	<span class="tk-kw">int</span> t = *pa;
+	*pa = *pb;
+	*pb = t;
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> x = <span class="tk-num">1</span>, y = <span class="tk-num">2</span>;
+	<span class="tk-fn">swap</span>(&amp;x, &amp;y);                <span class="tk-com">/* 把 x、y 的地址传进去 */</span>
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;x = %d, y = %d\n&quot;</span>, x, y);
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">x = 2, y = 1</code></pre></div><p>这次真的换过来了。道理一句话：<strong>传值只能改副本，传地址就能改原件。</strong> 导学案2练习 5 的&quot;三杯水&quot;，到这里才算真正成功。</p><h3 id="sec-5">一个函数&quot;带回&quot;多个值</h3><p><code>return</code> 一次只能带回一个值。想带回两个怎么办？用指针把结果&quot;写&quot;到调用者准备好的盒子里：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">void</span> <span class="tk-fn">minMax</span>(<span class="tk-kw">int</span> a, <span class="tk-kw">int</span> b, <span class="tk-kw">int</span> *pmin, <span class="tk-kw">int</span> *pmax)
+{
+	<span class="tk-kw">if</span> (a &lt; b) {
+		*pmin = a;
+		*pmax = b;
+	} <span class="tk-kw">else</span> {
+		*pmin = b;
+		*pmax = a;
+	}
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> lo = <span class="tk-num">0</span>, hi = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">minMax</span>(<span class="tk-num">7</span>, <span class="tk-num">3</span>, &amp;lo, &amp;hi);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;小的是 %d，大的是 %d\n&quot;</span>, lo, hi);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">小的是 3，大的是 7</code></pre></div><p>这个模式你在飞控代码里会反复见到：<code>LZY_Scheduler(..., &amp;ModeChangedFlag)</code> 就是把变量的地址交出去，让别的模块往里写结果。</p><h3 id="sec-6">顺便解开一个旧谜</h3><p>导学案2让你死记&quot;<code>scanf</code> 里每个变量前面都要写 <code>&amp;</code>&quot;。现在你懂了：</p><blockquote><p><strong><code>scanf(&quot;%d&quot;, &amp;a)</code> 就是把 <code>a</code> 的地址交给 <code>scanf</code>，让它顺着地址把读到的值放进 <code>a</code>。</strong> 如果不给地址，<code>scanf</code> 就不知道往哪放。</p></blockquote><hr><h2 id="sec-7">7.3 数组名本质是指针</h2><p>这是本节第二个必须带走的结论：</p><blockquote><p><strong>数组名就是&quot;第一个元素的地址&quot;。</strong> 即 <code>a</code> 等价于 <code>&amp;a[0]</code>。 因此 <code>a[i]</code> 等价于 <code>*(a + i)</code>：从首地址往后挪 i 个格子，再取里面的值。</p></blockquote><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> a[<span class="tk-num">5</span>] = {<span class="tk-num">10</span>, <span class="tk-num">20</span>, <span class="tk-num">30</span>, <span class="tk-num">40</span>, <span class="tk-num">50</span>};
+	<span class="tk-kw">int</span> *p = a;                  <span class="tk-com">/* 数组名直接赋给指针，不用写 &amp; */</span>
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;a[0] = %d, *p = %d\n&quot;</span>, a[<span class="tk-num">0</span>], *p);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;a[2] = %d, *(p + 2) = %d, p[2] = %d\n&quot;</span>, a[<span class="tk-num">2</span>], *(p + <span class="tk-num">2</span>), p[<span class="tk-num">2</span>]);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;a == &amp;a[0] 吗？ %d\n&quot;</span>, a == &amp;a[<span class="tk-num">0</span>]);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">a[0] = 10, *p = 10
+a[2] = 30, *(p + 2) = 30, p[2] = 30
+a == &amp;a[0] 吗？ 1</code></pre></div><p>这个结论顺手解释了两件旧事：</p><ol><li><strong>为什么 <code>scanf(&quot;%s&quot;, name)</code> 不写 <code>&amp;</code></strong>：<code>name</code> 本身就是地址，再写 <code>&amp;</code> 反而不对。</li><li><strong>为什么数组传给函数不用复制整个数组</strong>：传一个地址就够了，又快又省。</li></ol><h3 id="sec-8">数组作函数参数</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">void</span> <span class="tk-fn">printArr</span>(<span class="tk-kw">int</span> a[], <span class="tk-kw">int</span> len)        <span class="tk-com">/* 也可以写成 int *a，两种写法完全等价 */</span>
+{
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; len; i++) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d &quot;</span>, a[i]);
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+}
+
+<span class="tk-kw">void</span> <span class="tk-fn">doubleAll</span>(<span class="tk-kw">int</span> a[], <span class="tk-kw">int</span> len)
+{
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; len; i++) {
+		a[i] *= <span class="tk-num">2</span>;                     <span class="tk-com">/* 传进来的是地址，所以能改到原数组 */</span>
+	}
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> score[<span class="tk-num">5</span>] = {<span class="tk-num">90</span>, <span class="tk-num">85</span>, <span class="tk-num">77</span>, <span class="tk-num">68</span>, <span class="tk-num">99</span>};
+	<span class="tk-kw">int</span> len = (<span class="tk-kw">int</span>)(<span class="tk-kw">sizeof</span>(score) / <span class="tk-kw">sizeof</span>(score[<span class="tk-num">0</span>]));
+
+	<span class="tk-fn">printArr</span>(score, len);
+	<span class="tk-fn">doubleAll</span>(score, len);
+	<span class="tk-fn">printArr</span>(score, len);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">90 85 77 68 99
+180 170 154 136 198</code></pre></div><p>注意第二行：<code>doubleAll</code> 里改的就是 <code>main</code> 里的那个数组。<strong>数组作参数时是&quot;传地址&quot;，不是&quot;值传递&quot;</strong>，这是它和普通 <code>int</code> 参数最大的区别。</p><p><strong>一个必须记住的坑：长度要单独传。</strong> 函数里的 <code>a</code> 只是一个指针，<code>sizeof(a)</code> 得到的是指针本身的大小（4 或 8 字节），<strong>不是数组的大小</strong>。所以导学案5说&quot;<code>sizeof(a)/sizeof(a[0])</code> 这个套路只在数组定义的地方有效&quot;——原因就在这里。</p><hr><h2 id="sec-9">7.4 综合练习</h2><blockquote><p>本节练习用于自练与自查，<strong>不强制完成、不需要提交</strong>；需要提交的是实验室统一布置的作业（作业一 / 作业二）。 参考代码统一放在<strong>本节末尾</strong>，做完之前不要翻。</p></blockquote><ol><li>写指针版 <code>void swap(double <em>pa, double </em>pb)</code>，主函数读入两个小数，交换后输出。</li><li>写 <code>void minMaxArr(int a[], int len, int <em>pmin, int </em>pmax)</code>，求数组的最小值和最大值。主函数定义一个 6 个元素的数组并打印结果。</li><li>写 <code>void zeroEven(int a[], int len)</code>，把数组里所有偶数改成 0。主函数打印修改前后的数组，验证&quot;函数里真的改到了原数组&quot;。</li></ol><p>4.（<em>）用指针遍历数组：<code>int </em>p = a;</code>，然后循环里 <code>printf(&quot;%d &quot;, <em>p); p++;</code>。体会 <code>p++</code> 的含义是&quot;往后挪一个格子&quot;，挪的步长由指针的类型决定（<code>int </em></code> 一次挪 4 字节）。</p><hr><h2 id="sec-10">7.5 本节小结与自查</h2><p><strong>学完本节，你应该能做到：</strong></p><ul><li>[ ] 说清 <code>&amp;a</code>、<code>p</code>、<code>*p</code> 三者的关系，知道 <code>int *p</code> 怎么读</li><li>[ ] 定义指针时就初始化，知道野指针为什么危险、<code>NULL</code> 表示什么</li><li>[ ] 用指针让函数改到外面的变量（成功的 <code>swap</code>）</li><li>[ ] 知道函数要&quot;带回&quot;多个值时用指针参数</li><li>[ ] 说清 <code>a</code> 与 <code>&amp;a[0]</code>、<code>a[i]</code> 与 <code>*(a + i)</code> 的关系</li><li>[ ] 知道数组传给函数时传的是地址：必须同时传长度，且函数里能改到原数组</li><li>[ ] 解释 <code>scanf(&quot;%d&quot;, &amp;a[i])</code> 要写 <code>&amp;</code>、而 <code>scanf(&quot;%s&quot;, name)</code> 不写的原因</li></ul><blockquote><p><strong>下一节</strong>：导学案8 · 结构体。把不同类型的数据捆成一个&quot;自定义类型&quot;，飞控里每个传感器数据包都长这样。</p></blockquote><h2 id="sec-11">7.6 练习参考代码（做完再看）</h2><details class="ans" id="ans-1"><summary class="ans-title">练习 1 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">void</span> <span class="tk-fn">swap</span>(<span class="tk-kw">double</span> *pa, <span class="tk-kw">double</span> *pb)
+{
+	<span class="tk-kw">double</span> t = *pa;
+	*pa = *pb;
+	*pb = t;
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">double</span> x = <span class="tk-num">0.0</span>, y = <span class="tk-num">0.0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入两个小数：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%lf %lf&quot;</span>, &amp;x, &amp;y);
+
+	<span class="tk-fn">swap</span>(&amp;x, &amp;y);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;交换后：x = %.1f, y = %.1f\n&quot;</span>, x, y);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div></details><details class="ans" id="ans-2"><summary class="ans-title">练习 2 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">void</span> <span class="tk-fn">minMaxArr</span>(<span class="tk-kw">int</span> a[], <span class="tk-kw">int</span> len, <span class="tk-kw">int</span> *pmin, <span class="tk-kw">int</span> *pmax)
+{
+	*pmin = a[<span class="tk-num">0</span>];
+	*pmax = a[<span class="tk-num">0</span>];
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">1</span>; i &lt; len; i++) {
+		<span class="tk-kw">if</span> (a[i] &lt; *pmin) {
+			*pmin = a[i];
+		}
+		<span class="tk-kw">if</span> (a[i] &gt; *pmax) {
+			*pmax = a[i];
+		}
+	}
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> a[<span class="tk-num">6</span>] = {<span class="tk-num">5</span>, <span class="tk-num">2</span>, <span class="tk-num">9</span>, <span class="tk-num">1</span>, <span class="tk-num">7</span>, <span class="tk-num">3</span>};
+	<span class="tk-kw">int</span> len = (<span class="tk-kw">int</span>)(<span class="tk-kw">sizeof</span>(a) / <span class="tk-kw">sizeof</span>(a[<span class="tk-num">0</span>]));
+	<span class="tk-kw">int</span> lo = <span class="tk-num">0</span>, hi = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">minMaxArr</span>(a, len, &amp;lo, &amp;hi);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;最小 = %d，最大 = %d\n&quot;</span>, lo, hi);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：<code>最小 = 1，最大 = 9</code></p></details><details class="ans" id="ans-3"><summary class="ans-title">练习 3 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">void</span> <span class="tk-fn">printArr</span>(<span class="tk-kw">int</span> a[], <span class="tk-kw">int</span> len)
+{
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; len; i++) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d &quot;</span>, a[i]);
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+}
+
+<span class="tk-kw">void</span> <span class="tk-fn">zeroEven</span>(<span class="tk-kw">int</span> a[], <span class="tk-kw">int</span> len)
+{
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; len; i++) {
+		<span class="tk-kw">if</span> (a[i] % <span class="tk-num">2</span> == <span class="tk-num">0</span>) {
+			a[i] = <span class="tk-num">0</span>;
+		}
+	}
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> a[<span class="tk-num">6</span>] = {<span class="tk-num">4</span>, <span class="tk-num">7</span>, <span class="tk-num">2</span>, <span class="tk-num">9</span>, <span class="tk-num">6</span>, <span class="tk-num">1</span>};
+	<span class="tk-kw">int</span> len = (<span class="tk-kw">int</span>)(<span class="tk-kw">sizeof</span>(a) / <span class="tk-kw">sizeof</span>(a[<span class="tk-num">0</span>]));
+
+	<span class="tk-fn">printArr</span>(a, len);
+	<span class="tk-fn">zeroEven</span>(a, len);
+	<span class="tk-fn">printArr</span>(a, len);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">4 7 2 9 6 1
+0 7 0 9 0 1</code></pre></div><hr></details>
+</article>
+<footer class="doc-footer"><p>指针不可怕，可怕的是&quot;不知道指针里存的是什么&quot;。</p><p>以后每写一行带 <code>*</code> 的代码，先问自己：<strong>这个指针现在指向谁？</strong> </p><p><small>作者：Mike-lin300</small></p><p><small>最后更新：2026-09-25</small></p><p><small>更新说明：无（新编写）</small></p><p class="gen">本页由 tools/build.js 生成 · 2026-09-25 10:50 · 源文件 导学案7_指针.md · commit 0b61179</p></footer>
+<nav class="pn"><a href="guide-6.html">← 导学案6 · 函数：把重复的逻辑打包</a><a href="guide-8.html">导学案8 · 结构体：把数据捆成一个整体 →</a></nav>
+</main>
+<aside class="rail"><div class="rail-box"><div class="rail-title">本页目录</div><ol class="rail-toc"><li class="lv2"><a href="#sec-1">7.0 序</a></li><li class="lv2"><a href="#sec-2">7.1 地址、指针、解引用</a></li><li class="lv2"><a href="#sec-3">7.2 指针在函数里怎么用</a></li><li class="lv3"><a href="#sec-4">终于能改到外面的变量了</a></li><li class="lv3"><a href="#sec-5">一个函数&quot;带回&quot;多个值</a></li><li class="lv3"><a href="#sec-6">顺便解开一个旧谜</a></li><li class="lv2"><a href="#sec-7">7.3 数组名本质是指针</a></li><li class="lv3"><a href="#sec-8">数组作函数参数</a></li><li class="lv2"><a href="#sec-9">7.4 综合练习</a></li><li class="lv2"><a href="#sec-10">7.5 本节小结与自查</a></li><li class="lv2"><a href="#sec-11">7.6 练习参考代码（做完再看）</a></li><li class="lv3"><a href="#ans-1">练习 1 参考代码</a></li><li class="lv3"><a href="#ans-2">练习 2 参考代码</a></li><li class="lv3"><a href="#ans-3">练习 3 参考代码</a></li></ol></div></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

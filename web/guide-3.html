@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>导学案3 · 判断：让程序学会做选择 · 飞行器创新实验室 C 语言导学</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="top"><a class="brand" href="index.html">HFUT AircraftLab · C 语言导学</a><span class="stamp">生成于 2026-09-25 10:50 · 0b61179</span></header>
+<div class="layout">
+<nav class="side"><details open class="sidenav"><summary>全站目录</summary><ul><li><a href="guide-0.html"><span class="k">选读</span>0 计算机扫盲课</a></li><li><a href="guide-1.html"><span class="k">导学</span>1 认识 C 语言与开发环境</a></li><li><a href="guide-2.html"><span class="k">导学</span>2 输出、计算与输入</a></li><li class="cur"><a href="guide-3.html"><span class="k">导学</span>3 判断：让程序学会做选择</a></li><li><a href="guide-4.html"><span class="k">导学</span>4 循环：让程序学会重复</a></li><li><a href="guide-4x.html"><span class="k">选读</span>4附加 附加材料：飞控代码里的三个基础技巧（选读）</a></li><li><a href="guide-5.html"><span class="k">导学</span>5 数组：让程序记住一串数据</a></li><li><a href="guide-6.html"><span class="k">导学</span>6 函数：把重复的逻辑打包</a></li><li><a href="guide-7.html"><span class="k">导学</span>7 指针：地址这门手艺</a></li><li><a href="guide-8.html"><span class="k">导学</span>8 结构体：把数据捆成一个整体</a></li><li><a href="hw-1.html"><span class="k">作业</span>1 顺序、判断、循环与数组</a></li><li><a href="hw-2.html"><span class="k">作业</span>2 函数、指针、结构体与字符串</a></li><li><a href="app-1.html"><span class="k">附录</span>1 CMD 速查表</a></li><li><a href="app-2.html"><span class="k">附录</span>2 主控代码（飞控）</a></li></ul></details></nav>
+<main class="content">
+<h1 class="doctitle">导学案3 · 判断：让程序学会做选择</h1><dl class="doc-meta"><dt>前置要求</dt><dd>导学案2（会用 printf / scanf、会声明变量、知道整数除法的坑）</dd><dt>参考课程</dt><dd>浙江大学 翁恺《C 语言程序设计》第 3 章（判断、多路分支 switch）</dd><dt>预计用时</dt><dd>1.5小时（按需自取）</dd><dt>本节目标</dt><dd>让程序学会&quot;看情况办事&quot;——if / else if / else、<code>&amp;&amp;</code> <code>||</code> <code>!</code>、switch</dd></dl>
+<details class="toc toc-top"><summary>本页目录</summary><ol><li class="lv2"><a href="#sec-1">3.0 序</a></li><li class="lv2"><a href="#sec-2">3.1 关系运算与真假</a></li><li class="lv3"><a href="#sec-3">判断的结果，也是一个值</a></li><li class="lv3"><a href="#sec-4">本节最重要的警示：`==` 与 `=`</a></li><li class="lv2"><a href="#sec-5">3.2 if 与 if-else</a></li><li class="lv3"><a href="#sec-6">骨架</a></li><li class="lv3"><a href="#sec-7">三个坑</a></li><li class="lv2"><a href="#sec-8">3.3 else if：多分支</a></li><li class="lv3"><a href="#sec-9">else 到底和哪个 if 配对？</a></li><li class="lv3"><a href="#sec-10">关于嵌套</a></li><li class="lv2"><a href="#sec-11">3.4 逻辑运算：把条件组合起来</a></li><li class="lv3"><a href="#sec-12">经典例子：判断闰年</a></li><li class="lv3"><a href="#sec-13">必错写法：`18 &lt; age &lt; 60`</a></li><li class="lv3"><a href="#sec-14">两点补充</a></li><li class="lv2"><a href="#sec-15">3.5 switch：多个等值判断的整齐写法</a></li><li class="lv3"><a href="#sec-16">必须知道的三件事</a></li><li class="lv3"><a href="#sec-17">if 还是 switch？</a></li><li class="lv2"><a href="#sec-18">3.6 综合练习</a></li><li class="lv3"><a href="#sec-19">练习 1｜三个数从大到小</a></li><li class="lv3"><a href="#sec-20">练习 2｜简易计算器（回收上次的崩溃）</a></li><li class="lv3"><a href="#sec-21">练习 3｜BMI 计算与分级</a></li><li class="lv3"><a href="#sec-22">练习 4｜纠错</a></li><li class="lv2"><a href="#sec-23">3.8 练习参考代码（做完再看）</a></li><li class="lv3"><a href="#ans-1">练习 1 参考代码</a></li><li class="lv3"><a href="#ans-2">练习 2 参考代码</a></li><li class="lv3"><a href="#ans-3">练习 3 参考代码</a></li><li class="lv3"><a href="#ans-6">练习 6 参考答案</a></li><li class="lv2"><a href="#sec-28">3.7 本节小结与自查</a></li></ol></details>
+<article>
+<hr><h2 id="sec-1">3.0 序</h2><p>到目前为止，你写的程序都是<strong>从上往下，一条道走到黑</strong>：每一行都会执行，一个都不落。</p><p>但真实的程序必须能<strong>看情况办事</strong>：</p><ul><li>生活里：<strong>如果</strong>下雨，就带伞，<strong>否则</strong>不带。</li><li>实验室里：<strong>如果</strong>超声波测到的距离小于 20 cm，就让电机停转，<strong>否则</strong>继续转。</li></ul><p>程序设计的三大基本结构是：<strong>顺序</strong>（导学案1、2）、<strong>选择</strong>（本节）、<strong>循环</strong>（导学案4）。有一句很有名的结论：<strong>任何逻辑都能用这三种结构拼出来</strong>，不需要别的东西。本节讲第二种。</p><p><strong>本节路线</strong>：<code>关系运算与真假</code> → <code>if / else</code> → <code>else if 多分支</code> → <code>逻辑运算</code> → <code>switch</code> → <code>练习</code></p><hr><h2 id="sec-2">3.1 关系运算与真假</h2><h3 id="sec-3">判断的结果，也是一个值</h3><p>先破除一个心理障碍：<strong>&quot;3 比 5 大吗&quot;这个问句，在 C 语言里是有答案的，而且答案就是一个数。</strong></p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d\n&quot;</span>, <span class="tk-num">3</span> &gt; <span class="tk-num">5</span>);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d\n&quot;</span>, <span class="tk-num">3</span> &lt; <span class="tk-num">5</span>);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d\n&quot;</span>, <span class="tk-num">3</span> == <span class="tk-num">3</span>);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d\n&quot;</span>, <span class="tk-num">3</span> != <span class="tk-num">3</span>);
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">0
+1
+1
+0</code></pre></div><p>一点都不玄：<strong>成立就是 1，不成立就是 0</strong>。</p><p>六个关系运算符：</p><div class="table-wrap"><table><thead><tr><th>运算符</th><th>意思</th><th>例子</th><th>结果</th></tr></thead><tbody><tr><td><code>&gt;</code></td><td>大于</td><td><code>3 &gt; 5</code></td><td><code>0</code></td></tr><tr><td><code>&gt;=</code></td><td>大于等于</td><td><code>3 &gt;= 3</code></td><td><code>1</code></td></tr><tr><td><code>&lt;</code></td><td>小于</td><td><code>3 &lt; 5</code></td><td><code>1</code></td></tr><tr><td><code>&lt;=</code></td><td>小于等于</td><td><code>5 &lt;= 3</code></td><td><code>0</code></td></tr><tr><td><code>==</code></td><td><strong>等于</strong>（两个等号）</td><td><code>3 == 3</code></td><td><code>1</code></td></tr><tr><td><code>!=</code></td><td>不等于</td><td><code>3 != 3</code></td><td><code>0</code></td></tr></tbody></table></div><ul><li>没有 <code>=&lt;</code> 和 <code>=&gt;</code> 这种写法，必须是 <code>&lt;=</code> 和 <code>&gt;=</code>。</li></ul><h3 id="sec-4">本节最重要的警示：<code>==</code> 与 <code>=</code></h3><p>一个等号是<strong>赋值</strong>（把右边的值放进左边的盒子），两个等号才是<strong>判断相等</strong>。写错了编译器不一定拦得住：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 反面示例：能编译，逻辑全错 */</span>
+<span class="tk-kw">int</span> a = <span class="tk-num">5</span>;
+
+<span class="tk-kw">if</span> (a = <span class="tk-num">0</span>) {          <span class="tk-com">/* 这是赋值！把 a 改成 0，然后判断 0 —— 0 是假，永远不成立 */</span>
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;a 是 0\n&quot;</span>);
+}
+
+<span class="tk-kw">if</span> (a == <span class="tk-num">0</span>) {         <span class="tk-com">/* 这才是&quot;判断 a 是否等于 0&quot; */</span>
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;a 是 0\n&quot;</span>);
+}</code></pre></div><p>第一句执行完，<code>a</code> 已经被你亲手改成 0 了，而 <code>if</code> 判断的是&quot;赋值表达式的结果&quot;也就是 0，于是花括号里的内容永远不执行。<strong>这种 bug 不报错、不崩溃，只是悄悄地什么都不做</strong>，是最难查的一类。</p><hr><h2 id="sec-5">3.2 if 与 if-else</h2><h3 id="sec-6">骨架</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">if</span> (条件) {
+	<span class="tk-com">/* 条件成立（非 0）时执行这里 */</span>
+} <span class="tk-kw">else</span> {
+	<span class="tk-com">/* 条件不成立（0）时执行这里 */</span>
+}</code></pre></div><p><code>else</code> 部分可以省略。</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> score = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入成绩：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;score);
+
+	<span class="tk-kw">if</span> (score &gt;= <span class="tk-num">60</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;及格了\n&quot;</span>);
+	} <span class="tk-kw">else</span> {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;不及格，回去补\n&quot;</span>);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输入 <code>75</code>：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">请输入成绩：75
+及格了</code></pre></div><h3 id="sec-7">三个坑</h3><p><strong>坑 1：if 后面多写一个分号。</strong> 这是 C 语言最阴的坑之一，因为它<strong>完全合法，不报错</strong>：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 反面示例 */</span>
+<span class="tk-kw">if</span> (score &gt;= <span class="tk-num">60</span>);        <span class="tk-com">/* 这个分号让 if 管了一句&quot;空语句&quot; */</span>
+{
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;及格了\n&quot;</span>);   <span class="tk-com">/* 于是这一句变成了无条件执行 */</span>
+}</code></pre></div><p>分号本身就是一条&quot;什么也不做&quot;的空语句。<code>if</code> 认为它要管的就是这一句，管完就结束了；后面花括号里的内容成了普通代码，无论成绩多少都会打印&quot;及格了&quot;。</p><p><strong>坑 2：省略花括号。</strong> 如果 <code>if</code> 后面只有一条语句，花括号可以省：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">if</span> (score &gt;= <span class="tk-num">60</span>)
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;及格了\n&quot;</span>);</code></pre></div><p>语法上没问题，但<strong>本实验室要求你永远写上花括号</strong>。理由很实在：某天你在下面又加了一句，忘了补花括号，那句就会无条件执行——和坑 1 一模一样的 bug。</p><hr><h2 id="sec-8">3.3 else if：多分支</h2><p>要分成好几档时，用 <code>else if</code> 串起来。看例子<strong>电池电压分级</strong>：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">double</span> v = <span class="tk-num">0.0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入电池电压（V）：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%lf&quot;</span>, &amp;v);
+
+	<span class="tk-kw">if</span> (v &lt;= <span class="tk-num">0.0</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;数值不正常，检查接线和测量\n&quot;</span>);
+	} <span class="tk-kw">else</span> <span class="tk-kw">if</span> (v &gt; <span class="tk-num">12.6</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;满电\n&quot;</span>);
+	} <span class="tk-kw">else</span> <span class="tk-kw">if</span> (v &gt;= <span class="tk-num">11.8</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;电量正常\n&quot;</span>);
+	} <span class="tk-kw">else</span> <span class="tk-kw">if</span> (v &gt;= <span class="tk-num">11.2</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;电量偏低，需要充电\n&quot;</span>);
+	} <span class="tk-kw">else</span> {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;低电量保护，停止执行任务！\n&quot;</span>);	<span class="tk-com">// 没错，曾经因为掉电保护真实坠机过</span>
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>几个输入的实测结果：</p><div class="table-wrap"><table><thead><tr><th>输入</th><th>输出</th></tr></thead><tbody><tr><td><code>12.7</code></td><td><code>满电</code></td></tr><tr><td><code>12.3</code></td><td><code>电量正常</code></td></tr><tr><td><code>11.5</code></td><td><code>电量偏低，需要充电</code></td></tr><tr><td><code>10.7</code></td><td><code>低电量保护，停止执行任务！</code></td></tr><tr><td><code>-1</code></td><td><code>数值不正常，检查接线和测量</code></td></tr></tbody></table></div><p><strong>关键点：<code>else if</code> 是从上往下逐条判断，命中一条就执行它、然后整串结束。</strong> 所以第三个分支只写了 <code>v &gt;= 11.8</code>，不用写 <code>v &gt;= 11.8 &amp;&amp; v &lt;= 12.6</code>——能走到这里，说明上面的条件都不成立，<code>v &gt; 12.6</code> 已经被排除了。<strong>顺序很重要</strong>，把范围窄的、优先级高的条件写在前面。</p><h3 id="sec-9">else 到底和哪个 if 配对？</h3><p><strong>就近原则</strong>：<code>else</code> 永远和它上面<strong>最近的、还没配对的</strong> <code>if</code> 绑定，<strong>跟缩进无关</strong>（# 有些同学中学学了Python，Python是一门逻辑与缩进强相关的语言，在这里可能会弄混）。</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 反面示例：缩进骗不了编译器 */</span>
+<span class="tk-kw">if</span> (a &gt; <span class="tk-num">0</span>)
+	<span class="tk-kw">if</span> (a &gt; <span class="tk-num">100</span>)
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;很大\n&quot;</span>);
+<span class="tk-kw">else</span>
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;这行其实属于 if (a &gt; 100)\n&quot;</span>);</code></pre></div><p>想让它属于外层 <code>if</code>，就得加花括号。<strong>永远写花括号，就不会有这个问题。</strong></p><h3 id="sec-10">关于嵌套</h3><p><code>if</code> 里面可以再套 <code>if</code>，语法上没有限制。</p><hr><h2 id="sec-11">3.4 逻辑运算：把条件组合起来</h2><div class="table-wrap"><table><thead><tr><th>运算符</th><th>意思</th><th>例子</th></tr></thead><tbody><tr><td><code>&amp;&amp;</code></td><td>并且，两边都真才真</td><td><code>a &gt; 0 &amp;&amp; a &lt; 10</code></td></tr><tr><td>`</td><td></td><td>`</td><td>或者，有一边真就真</td><td>`c == 'y'</td><td></td><td>c == 'Y'`</td></tr><tr><td><code>!</code></td><td>非，真变假、假变真</td><td><code>!(a &gt; 0)</code></td></tr></tbody></table></div><p>真值表（1 表示真，0 表示假）：</p><div class="table-wrap"><table><thead><tr><th>a</th><th>b</th><th><code>a &amp;&amp; b</code></th><th>`a</th><th></th><th>b`</th></tr></thead><tbody><tr><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>0</td><td>1</td></tr><tr><td>1</td><td>0</td><td>0</td><td>1</td></tr><tr><td>1</td><td>1</td><td>1</td><td>1</td></tr></tbody></table></div><h3 id="sec-12">经典例子：判断闰年</h3><p>规则是：能被 4 整除但不能被 100 整除，或者能被 400 整除。</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> year = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入年份：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;year);
+
+	<span class="tk-kw">if</span> ((year % <span class="tk-num">4</span> == <span class="tk-num">0</span> &amp;&amp; year % <span class="tk-num">100</span> != <span class="tk-num">0</span>) || year % <span class="tk-num">400</span> == <span class="tk-num">0</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d 是闰年\n&quot;</span>, year);
+	} <span class="tk-kw">else</span> {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d 是平年\n&quot;</span>, year);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p><strong>顺便学一个宝贵的习惯：写完就列测试用例，尤其是边界。</strong></p><div class="table-wrap"><table><thead><tr><th>输入</th><th>应该是</th><th>为什么选它</th></tr></thead><tbody><tr><td><code>2024</code></td><td>闰年</td><td>普通闰年</td></tr><tr><td><code>2023</code></td><td>平年</td><td>普通平年</td></tr><tr><td><code>1900</code></td><td>平年</td><td>能被 100 整除但不能被 400 整除，<strong>最容易写错的一档</strong></td></tr><tr><td><code>2000</code></td><td>闰年</td><td>能被 400 整除</td></tr></tbody></table></div><h3 id="sec-13">必错写法：<code>18 &lt; age &lt; 60</code></h3><p>数学里这么写天经地义，甚至在部分语言如Python中也成立，但在 C 语言里，<strong>它恒为真</strong>：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 反面示例 */</span>
+<span class="tk-kw">int</span> age = -<span class="tk-num">100</span>;
+
+<span class="tk-kw">if</span> (<span class="tk-num">18</span> &lt; age &lt; <span class="tk-num">60</span>) {        <span class="tk-com">/* age = -100 也照样成立！ */</span>
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;在范围内\n&quot;</span>);
+}</code></pre></div><p>为什么？C 语言从左往右算：先算 <code>18 &lt; age</code>，<code>18 &lt; -100</code> 不成立，得到 <code>0</code>；再拿这个 <code>0</code> 去和 60 比，<code>0 &lt; 60</code> 成立，于是整个式子是 <code>1</code>（真）。换成 <code>age = 1000</code> 也一样：<code>18 &lt; 1000</code> 得 <code>1</code>，<code>1 &lt; 60</code> 成立。<strong>无论 age 是多少，结果都是真。</strong></p><p>正确写法：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">if</span> (age &gt; <span class="tk-num">18</span> &amp;&amp; age &lt; <span class="tk-num">60</span>) {
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;在范围内\n&quot;</span>);
+}</code></pre></div><h3 id="sec-14">两点补充</h3><ol><li><strong>短路求值</strong>：<code>&amp;&amp;</code> 只要左边为假，右边<strong>根本不会被计算</strong>；<code>||</code> 只要左边为真，右边也不会被计算。为什么要讲这个，因为比如说某个逻辑表达式右侧存在 <code>i++</code> 的表达式，那么这个 i 是否自增就与逻辑连接词左侧表达式的真值有关了，可能被增加，也可能不增加，取决于是否被短路，这不是一个好现象。</li><li><code>&amp;</code>、<code>|</code>、<code>^</code>（都只有一个符号）是<strong>位运算</strong>，长得像但不是一回事，别混淆。</li></ol><hr><h2 id="sec-15">3.5 switch：多个等值判断的整齐写法</h2><p><strong>开门见山</strong>：<code>switch</code> 不是 <code>if</code> 的替代品，它是&quot;<strong>从若干个固定值里挑一个</strong>&quot;的整齐写法。如果条件是范围（大于、小于、区间），只能用 <code>if</code>。</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> day = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入 1~7：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;day);
+
+	<span class="tk-kw">switch</span> (day) {
+		<span class="tk-kw">case</span> <span class="tk-num">1</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;星期一\n&quot;</span>); <span class="tk-kw">break</span>;
+		<span class="tk-kw">case</span> <span class="tk-num">2</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;星期二\n&quot;</span>); <span class="tk-kw">break</span>;
+		<span class="tk-kw">case</span> <span class="tk-num">3</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;星期三\n&quot;</span>); <span class="tk-kw">break</span>;
+		<span class="tk-kw">case</span> <span class="tk-num">4</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;星期四\n&quot;</span>); <span class="tk-kw">break</span>;
+		<span class="tk-kw">case</span> <span class="tk-num">5</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;星期五\n&quot;</span>); <span class="tk-kw">break</span>;
+		<span class="tk-kw">case</span> <span class="tk-num">6</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;星期六\n&quot;</span>); <span class="tk-kw">break</span>;
+		<span class="tk-kw">case</span> <span class="tk-num">7</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;星期日\n&quot;</span>); <span class="tk-kw">break</span>;
+		<span class="tk-kw">default</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;输入有误，应该是 1~7\n&quot;</span>); <span class="tk-kw">break</span>;
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输入 <code>6</code>：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">请输入 1~7：6
+星期六</code></pre></div><h3 id="sec-16">必须知道的三件事</h3><p><strong>一、<code>case</code> 后面必须是&quot;常量&quot;</strong>，可以是整数、字符；<strong>不能是范围</strong>（<code>case 1~5:</code> 这种写法根本不存在）、<strong>不能是小数</strong>、<strong>不能是变量</strong>。所以想判断&quot;成绩在 90 到 100 之间&quot;，只能用 <code>if</code>。</p><p><strong>二、<code>break</code> 不能忘。</strong> 不写 <code>break</code>，程序会<strong>穿透</strong>到下一个 <code>case</code> 继续执行：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 反面示例：漏写 break */</span>
+<span class="tk-kw">switch</span> (day) {
+	<span class="tk-kw">case</span> <span class="tk-num">1</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;星期一\n&quot;</span>);      <span class="tk-com">/* 没有 break */</span>
+	<span class="tk-kw">case</span> <span class="tk-num">2</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;星期二\n&quot;</span>);      <span class="tk-com">/* 输入 1 也会打印这一行 */</span>
+	<span class="tk-kw">default</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;其他\n&quot;</span>);       <span class="tk-com">/* 然后继续打印这一行 */</span>
+}</code></pre></div><p>输入 <code>1</code> 会一口气打印三行。穿透偶尔是老手有意为之的技巧，<strong>但现阶段请一律写 <code>break</code></strong>。</p><p><strong>三、<code>default</code> 相当于 <code>else</code></strong>，建议永远写上，哪怕只打印一句&quot;输入有误&quot;。它是你抓住意外输入的最后一条网。</p><h3 id="sec-17">if 还是 switch？</h3><div class="table-wrap"><table><thead><tr><th>你要判断的是</th><th>用哪个</th></tr></thead><tbody><tr><td>等值：从 1、2、3 里挑一个</td><td>都行，<code>switch</code> 更整齐</td></tr><tr><td>范围：大于、小于、区间</td><td>只能 <code>if</code></td></tr><tr><td>小数、字符串</td><td>只能 <code>if</code></td></tr></tbody></table></div><hr><h2 id="sec-18">3.6 综合练习</h2><blockquote><p>本节练习用于自练与自查，<strong>不强制完成、不需要提交</strong>；需要提交的是实验室统一布置的作业（作业一 / 作业二）。 参考代码统一放在<strong>本节末尾</strong>，做完之前不要翻。</p></blockquote><h3 id="sec-19">练习 1｜三个数从大到小</h3> <a class="jump" href="#ans-1">参考代码 ↧</a><p>读入三个整数，<strong>用 <code>if</code> 和交换</strong>，把它们从大到小输出。</p><h3 id="sec-20">练习 2｜简易计算器（回收上次的崩溃）</h3> <a class="jump" href="#ans-2">参考代码 ↧</a><p><strong>还记得导学案2练习 2 里，你故意输入 <code>b = 0</code> 时程序崩溃的事吗？</strong> 现在你有能力收拾这个烂摊子了。</p><p>读入一个算式，例如 <code>12 + 5</code>，用 <code>switch</code> 按运算符分派，输出结果（保留两位小数）。<strong>除数为 0 时给出友好提示，而不是崩溃。</strong></p><blockquote><p><strong>提示</strong>：<code>scanf(&quot;%lf %c %lf&quot;, &amp;a, &amp;op, &amp;b);</code> 可以一次读进&quot;数、运算符、数&quot;，注意 <code>%c</code> 前面的空格（导学案2 2.4）。</p></blockquote><h3 id="sec-21">练习 3｜BMI 计算与分级</h3> <a class="jump" href="#ans-3">参考代码 ↧</a><p>读入身高（m）和体重（kg），输出 BMI（保留一位小数）和分级。</p><p>公式：<code>BMI = 体重 / (身高 * 身高)</code>；分级：小于 18.5 偏瘦，18.5 ~ 24 正常，24 ~ 28 偏胖，28 及以上肥胖。</p><blockquote><p><strong>提示</strong>：这是 <code>else if</code> 的典型场景，注意分支的<strong>顺序</strong>和&quot;可以省略下界&quot;这个特点。身高为 0 或负数要先拦下来，否则会出现除以 0。</p></blockquote><h3 id="sec-22">练习 4｜纠错</h3><p>下面这段代码有 <strong>4 处错误</strong>，请修正。</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 反面示例：有 4 处错误 */</span>
+<span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> score = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入成绩：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, score);
+
+	<span class="tk-kw">if</span> (score &gt;= <span class="tk-num">60</span>);
+	{
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;及格\n&quot;</span>);
+	}
+
+	<span class="tk-kw">if</span> (score = <span class="tk-num">100</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;满分\n&quot;</span>);
+	}
+
+	<span class="tk-kw">switch</span> (score / <span class="tk-num">10</span>) {
+		<span class="tk-kw">case</span> <span class="tk-num">10</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;A\n&quot;</span>);
+		<span class="tk-kw">case</span> <span class="tk-num">9</span>:  <span class="tk-fn">printf</span>(<span class="tk-str">&quot;B\n&quot;</span>);
+		<span class="tk-kw">default</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;C\n&quot;</span>);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><h2 id="sec-23">3.8 练习参考代码（做完再看）</h2><details class="ans" id="ans-1"><summary class="ans-title">练习 1 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> a = <span class="tk-num">0</span>, b = <span class="tk-num">0</span>, c = <span class="tk-num">0</span>;
+	<span class="tk-kw">int</span> t = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入三个整数：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d %d %d&quot;</span>, &amp;a, &amp;b, &amp;c);
+
+	<span class="tk-kw">if</span> (a &lt; b) { t = a; a = b; b = t; }
+	<span class="tk-kw">if</span> (a &lt; c) { t = a; a = c; c = t; }
+	<span class="tk-kw">if</span> (b &lt; c) { t = b; b = c; c = t; }
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;从大到小：%d %d %d\n&quot;</span>, a, b, c);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><blockquote><p>为了省地方，这里把交换写在一行里。自己写的时候建议展开成三行，更清楚。</p></details></blockquote><details class="ans" id="ans-2"><summary class="ans-title">练习 2 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">double</span> a = <span class="tk-num">0.0</span>, b = <span class="tk-num">0.0</span>;
+	<span class="tk-kw">char</span> op = <span class="tk-str">' '</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入算式，例如 12 + 5：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%lf %c %lf&quot;</span>, &amp;a, &amp;op, &amp;b);
+
+	<span class="tk-kw">switch</span> (op) {
+		<span class="tk-kw">case</span> <span class="tk-str">'+'</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;%.2f\n&quot;</span>, a + b); <span class="tk-kw">break</span>;
+		<span class="tk-kw">case</span> <span class="tk-str">'-'</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;%.2f\n&quot;</span>, a - b); <span class="tk-kw">break</span>;
+		<span class="tk-kw">case</span> <span class="tk-str">'*'</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;%.2f\n&quot;</span>, a * b); <span class="tk-kw">break</span>;
+		<span class="tk-kw">case</span> <span class="tk-str">'/'</span>:
+			<span class="tk-kw">if</span> (b == <span class="tk-num">0.0</span>) {
+				<span class="tk-fn">printf</span>(<span class="tk-str">&quot;除数不能为 0\n&quot;</span>);
+			} <span class="tk-kw">else</span> {
+				<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%.2f\n&quot;</span>, a / b);
+			}
+			<span class="tk-kw">break</span>;
+		<span class="tk-kw">default</span>: <span class="tk-fn">printf</span>(<span class="tk-str">&quot;不认识的运算符：%c\n&quot;</span>, op); <span class="tk-kw">break</span>;
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><blockquote><p>这里用 <code>b == 0.0</code> 判断除数为 0，看着和导学案2 2.5 节&quot;不要用 == 比较小数&quot;的结论矛盾。 其实不矛盾：这个 <code>b</code> 是用户直接敲进来的，要么就是 <code>0</code>，要么就不是。<strong>只有经过计算得来的小数才不能用 <code>==</code> 比。</strong> 更保险的写法是判断 <code>b &gt; -0.000001 &amp;&amp; b &lt; 0.000001</code>。</p></details></blockquote><details class="ans" id="ans-3"><summary class="ans-title">练习 3 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">double</span> h = <span class="tk-num">0.0</span>, w = <span class="tk-num">0.0</span>, bmi = <span class="tk-num">0.0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入身高（m）和体重（kg）：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%lf %lf&quot;</span>, &amp;h, &amp;w);
+
+	<span class="tk-kw">if</span> (h &lt;= <span class="tk-num">0.0</span> || w &lt;= <span class="tk-num">0.0</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;输入不正常，请检查\n&quot;</span>);
+	} <span class="tk-kw">else</span> {
+		bmi = w / (h * h);
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;BMI = %.1f\n&quot;</span>, bmi);
+
+		<span class="tk-kw">if</span> (bmi &lt; <span class="tk-num">18.5</span>) {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;偏瘦\n&quot;</span>);
+		} <span class="tk-kw">else</span> <span class="tk-kw">if</span> (bmi &lt; <span class="tk-num">24.0</span>) {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;正常\n&quot;</span>);
+		} <span class="tk-kw">else</span> <span class="tk-kw">if</span> (bmi &lt; <span class="tk-num">28.0</span>) {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;偏胖\n&quot;</span>);
+		} <span class="tk-kw">else</span> {
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;肥胖\n&quot;</span>);
+		}
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div></details><details class="ans" id="ans-6"><summary class="ans-title">练习 6 参考答案</summary><div class="table-wrap"><table><thead><tr><th>#</th><th>错在哪</th><th>怎么改</th></tr></thead><tbody><tr><td>1</td><td><code>scanf</code> 漏了 <code>&amp;</code></td><td><code>scanf(&quot;%d&quot;, &amp;score);</code></td></tr><tr><td>2</td><td><code>if</code> 后面多了个分号，花括号里的内容变成无条件执行</td><td>删掉那个分号</td></tr><tr><td>3</td><td>用 <code>=</code> 赋值当成了判断，还顺手把 score 改成了 100</td><td><code>if (score == 100)</code></td></tr><tr><td>4</td><td><code>case 10</code> 漏了 <code>break</code>，会穿透打印 A、B、C 三行</td><td>每个 case 后补 <code>break;</code></td></tr></tbody></table></div><hr></details><h2 id="sec-28">3.7 本节小结与自查</h2><p><strong>学完本节，你应该能做到：</strong></p><ul><li>[ ] 说出关系运算的结果是什么，C 语言里&quot;真&quot;和&quot;假&quot;分别对应什么</li><li>[ ] 写 <code>if</code> / <code>else</code> / <code>else if</code>，并解释为什么 <code>else if</code> 分支可以省略下界</li><li>[ ] 解释 <code>if (a = 0)</code>、<code>if (a == 0)</code>、<code>if (a == 0);</code> 三者的区别</li><li>[ ] 用 <code>&amp;&amp;</code> <code>||</code> <code>!</code> 组合条件，并解释 <code>18 &lt; age &lt; 60</code> 为什么恒为真</li><li>[ ] 知道 <code>switch</code> 适合什么情况、漏写 <code>break</code> 会怎样、<code>default</code> 有什么用</li><li>[ ] 写完一段判断逻辑后，能自己列出至少 4 个测试用例（含边界值）</li></ul><blockquote><p><strong>下一节</strong>：导学案4 · 循环。让程序学会重复，三大基本结构就集齐了。</p></blockquote>
+</article>
+<footer class="doc-footer"><p><small>作者：Mike-lin300</small></p><p><small>最后更新：2026-09-24</small></p><p><small>更新说明：无</small></p><p class="gen">本页由 tools/build.js 生成 · 2026-09-25 10:50 · 源文件 导学案3_判断.md · commit 0b61179</p></footer>
+<nav class="pn"><a href="guide-2.html">← 导学案2 · 输出、计算与输入</a><a href="guide-4.html">导学案4 · 循环：让程序学会重复 →</a></nav>
+</main>
+<aside class="rail"><div class="rail-box"><div class="rail-title">本页目录</div><ol class="rail-toc"><li class="lv2"><a href="#sec-1">3.0 序</a></li><li class="lv2"><a href="#sec-2">3.1 关系运算与真假</a></li><li class="lv3"><a href="#sec-3">判断的结果，也是一个值</a></li><li class="lv3"><a href="#sec-4">本节最重要的警示：`==` 与 `=`</a></li><li class="lv2"><a href="#sec-5">3.2 if 与 if-else</a></li><li class="lv3"><a href="#sec-6">骨架</a></li><li class="lv3"><a href="#sec-7">三个坑</a></li><li class="lv2"><a href="#sec-8">3.3 else if：多分支</a></li><li class="lv3"><a href="#sec-9">else 到底和哪个 if 配对？</a></li><li class="lv3"><a href="#sec-10">关于嵌套</a></li><li class="lv2"><a href="#sec-11">3.4 逻辑运算：把条件组合起来</a></li><li class="lv3"><a href="#sec-12">经典例子：判断闰年</a></li><li class="lv3"><a href="#sec-13">必错写法：`18 &lt; age &lt; 60`</a></li><li class="lv3"><a href="#sec-14">两点补充</a></li><li class="lv2"><a href="#sec-15">3.5 switch：多个等值判断的整齐写法</a></li><li class="lv3"><a href="#sec-16">必须知道的三件事</a></li><li class="lv3"><a href="#sec-17">if 还是 switch？</a></li><li class="lv2"><a href="#sec-18">3.6 综合练习</a></li><li class="lv3"><a href="#sec-19">练习 1｜三个数从大到小</a></li><li class="lv3"><a href="#sec-20">练习 2｜简易计算器（回收上次的崩溃）</a></li><li class="lv3"><a href="#sec-21">练习 3｜BMI 计算与分级</a></li><li class="lv3"><a href="#sec-22">练习 4｜纠错</a></li><li class="lv2"><a href="#sec-23">3.8 练习参考代码（做完再看）</a></li><li class="lv3"><a href="#ans-1">练习 1 参考代码</a></li><li class="lv3"><a href="#ans-2">练习 2 参考代码</a></li><li class="lv3"><a href="#ans-3">练习 3 参考代码</a></li><li class="lv3"><a href="#ans-6">练习 6 参考答案</a></li><li class="lv2"><a href="#sec-28">3.7 本节小结与自查</a></li></ol></div></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

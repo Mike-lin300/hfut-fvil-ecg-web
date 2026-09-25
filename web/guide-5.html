@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>导学案5 · 数组：让程序记住一串数据 · 飞行器创新实验室 C 语言导学</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="top"><a class="brand" href="index.html">HFUT AircraftLab · C 语言导学</a><span class="stamp">生成于 2026-09-25 10:50 · 0b61179</span></header>
+<div class="layout">
+<nav class="side"><details open class="sidenav"><summary>全站目录</summary><ul><li><a href="guide-0.html"><span class="k">选读</span>0 计算机扫盲课</a></li><li><a href="guide-1.html"><span class="k">导学</span>1 认识 C 语言与开发环境</a></li><li><a href="guide-2.html"><span class="k">导学</span>2 输出、计算与输入</a></li><li><a href="guide-3.html"><span class="k">导学</span>3 判断：让程序学会做选择</a></li><li><a href="guide-4.html"><span class="k">导学</span>4 循环：让程序学会重复</a></li><li><a href="guide-4x.html"><span class="k">选读</span>4附加 附加材料：飞控代码里的三个基础技巧（选读）</a></li><li class="cur"><a href="guide-5.html"><span class="k">导学</span>5 数组：让程序记住一串数据</a></li><li><a href="guide-6.html"><span class="k">导学</span>6 函数：把重复的逻辑打包</a></li><li><a href="guide-7.html"><span class="k">导学</span>7 指针：地址这门手艺</a></li><li><a href="guide-8.html"><span class="k">导学</span>8 结构体：把数据捆成一个整体</a></li><li><a href="hw-1.html"><span class="k">作业</span>1 顺序、判断、循环与数组</a></li><li><a href="hw-2.html"><span class="k">作业</span>2 函数、指针、结构体与字符串</a></li><li><a href="app-1.html"><span class="k">附录</span>1 CMD 速查表</a></li><li><a href="app-2.html"><span class="k">附录</span>2 主控代码（飞控）</a></li></ul></details></nav>
+<main class="content">
+<h1 class="doctitle">导学案5 · 数组：让程序记住一串数据</h1><dl class="doc-meta"><dt>前置要求</dt><dd>导学案4（会写 for 循环，会用 break，理解&quot;外层走一步、内层走一整圈&quot;）</dd><dt>参考课程</dt><dd>浙江大学 翁恺《C 语言程序设计》第 8 章（数组）</dd><dt>预计用时</dt><dd>2 小时（按需自取）</dd><dt>本节目标</dt><dd>会定义、初始化、遍历数组，掌握求和 / 最值 / 查找 / 排序四个套路，认识二维数组和字符串</dd><dt>编者说明</dt><dd>导学案5开始之前，如果你不熟练前面的内容，建议翁凯的第六章可以先练一练，同时回顾数据类型</dd><dd class="wide">这里编者没注意翁凯的教程中是先讲的函数，顺序发生了一点点错乱，还是那句话，依旧按需自取</dd></dl>
+<details class="toc toc-top"><summary>本页目录</summary><ol><li class="lv2"><a href="#sec-1">5.0 序</a></li><li class="lv2"><a href="#sec-2">5.1 定义与初始化</a></li><li class="lv3"><a href="#sec-3">一排连号的盒子</a></li><li class="lv3"><a href="#sec-4">初始化</a></li><li class="lv3"><a href="#sec-5">越界：本节最重要的警告</a></li><li class="lv3"><a href="#sec-6">数组长度用什么写</a></li><li class="lv2"><a href="#sec-7">5.2 遍历数组</a></li><li class="lv3"><a href="#sec-8">不要把 5 写死：用 sizeof 算长度</a></li><li class="lv3"><a href="#sec-9">从键盘读入数组</a></li><li class="lv2"><a href="#sec-10">5.3 四个常用基础模板</a></li><li class="lv3"><a href="#sec-11">模板一：求和与平均</a></li><li class="lv3"><a href="#sec-12">模板二：最大值、最小值</a></li><li class="lv3"><a href="#sec-13">模板三：查找（flag + break）</a></li><li class="lv3"><a href="#sec-14">模板四：冒泡排序</a></li><li class="lv2"><a href="#sec-15">5.4 二维数组：数组的数组</a></li><li class="lv2"><a href="#sec-16">5.5 字符数组与字符串初步</a></li><li class="lv3"><a href="#sec-17">打印与遍历</a></li><li class="lv3"><a href="#sec-18">读入字符串</a></li><li class="lv3"><a href="#sec-19">一个必须提前打的预防针</a></li><li class="lv2"><a href="#sec-20">5.6 综合练习</a></li><li class="lv3"><a href="#sec-21">练习 1｜成绩统计</a></li><li class="lv3"><a href="#sec-22">练习 2｜逆序</a></li><li class="lv3"><a href="#sec-23">练习 3｜不及格名单</a></li><li class="lv3"><a href="#sec-24">练习 4｜排序</a></li><li class="lv3"><a href="#sec-25">练习 5｜主对角线之和</a></li><li class="lv3"><a href="#sec-26">练习 6｜单词处理</a></li><li class="lv3"><a href="#sec-27">练习 7｜斐波那契数列</a></li><li class="lv2"><a href="#sec-28">5.7 本节小结与自查</a></li><li class="lv2"><a href="#sec-29">5.8 练习参考代码（做完再看）</a></li><li class="lv3"><a href="#ans-1">练习 1 参考代码</a></li><li class="lv3"><a href="#ans-2">练习 2 参考代码</a></li><li class="lv3"><a href="#ans-4">练习 4 参考代码（只给出与套路四不同的那一行）</a></li><li class="lv3"><a href="#ans-5">练习 5 参考代码</a></li><li class="lv3"><a href="#ans-6">练习 6 参考代码</a></li></ol></details>
+<article>
+<hr><h2 id="sec-1">5.0 序</h2><p>来个任务：<strong>读入 5 个同学的成绩，求平均分，并把所有高于平均分的成绩打印出来。</strong></p><p>你现在只能这么写：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">int</span> s1 = <span class="tk-num">0</span>, s2 = <span class="tk-num">0</span>, s3 = <span class="tk-num">0</span>, s4 = <span class="tk-num">0</span>, s5 = <span class="tk-num">0</span>;
+
+<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d %d %d %d %d&quot;</span>, &amp;s1, &amp;s2, &amp;s3, &amp;s4, &amp;s5);</code></pre></div><p>五个还凑合。但是：</p><ol><li>如果是 <strong>50 个人</strong>呢？你要声明 50 个变量，写 50 个 <code>scanf</code> 参数。</li><li>更要命的是第二问：&quot;<strong>把所有高于平均分的打印出来</strong>&quot;——这要求你把数据<strong>先留住</strong>，算完平均之后再回头<strong>挨个看一遍</strong>。用 50 个变量，你就得写 50 个 <code>if</code>，而且没法用循环，因为它们名字都不一样。</li><li>最要命的是：个数常常<strong>在运行时才知道</strong>。比如串口收到了多少个字节，你写代码的时候根本不知道，也就没法提前声明那么多个变量。</li></ol><p><strong>数组</strong>就是来解决这件事的：<strong>一次要一排连号的盒子，用同一个名字加编号来访问。</strong></p><p><strong>本节路线</strong>：<code>定义与初始化</code> → <code>遍历</code> → <code>四个常见套路</code> → <code>二维数组</code> → <code>字符数组与字符串</code> → <code>数组与 STM32</code> → <code>练习</code></p><blockquote><p><strong>本节不讲</strong>：函数（所以所有代码都写在 <code>main</code> 里）、指针、动态内存 <code>malloc</code>、字符串处理库的完整用法。它们属于下一轮。</p></blockquote><hr><h2 id="sec-2">5.1 定义与初始化</h2><h3 id="sec-3">一排连号的盒子</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">int</span> score[<span class="tk-num">5</span>];        <span class="tk-com">/* 一次要 5 个连续的 int 盒子，统一叫 score */</span></code></pre></div><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">下标：    0     1     2     3     4
+        ┌─────┬─────┬─────┬─────┬─────┐
+score   │     │     │     │     │     │
+        └─────┴─────┴─────┴─────┴─────┘</code></pre></div><p><strong>下标从 0 开始</strong>，这是 C 语言的规矩。<code>score[0]</code> 是第一个，<code>score[4]</code> 是最后一个，<strong>没有 <code>score[5]</code></strong>。</p><p>用起来和单个变量没区别：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c">score[<span class="tk-num">2</span>] = <span class="tk-num">90</span>;              <span class="tk-com">/* 给第 3 个盒子赋值 */</span>
+<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d\n&quot;</span>, score[<span class="tk-num">0</span>]);   <span class="tk-com">/* 取出第 1 个盒子 */</span></code></pre></div><p><strong>关键在于：下标可以是变量，也可以是表达式。</strong> <code>score[i]</code> 意味着&quot;第 i 个盒子&quot;，<code>i</code> 一变，访问的盒子就跟着变。<strong>这就是数组的灵魂</strong>——正因如此，<strong>没有循环的数组几乎毫无意义</strong>。</p><blockquote><p>顺便说一句：<code>int a[5];</code> 里的 <code>5</code> 表示&quot;我要 5 个格子&quot;，而 <code>a[5]</code> 里的 <code>5</code> 表示&quot;第 6 个格子&quot;。同一个写法，两个意思，别混。</p></blockquote><h3 id="sec-4">初始化</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> a[<span class="tk-num">5</span>] = {<span class="tk-num">90</span>, <span class="tk-num">85</span>, <span class="tk-num">77</span>, <span class="tk-num">68</span>, <span class="tk-num">99</span>};   <span class="tk-com">/* 全部写出来 */</span>
+	<span class="tk-kw">int</span> b[<span class="tk-num">5</span>] = {<span class="tk-num">1</span>, <span class="tk-num">2</span>};                 <span class="tk-com">/* 只写前两个，剩下的自动补 0 */</span>
+	<span class="tk-kw">int</span> c[<span class="tk-num">5</span>] = {<span class="tk-num">0</span>};                    <span class="tk-com">/* 全部清零，最常用的写法 */</span>
+	<span class="tk-kw">int</span> d[] = {<span class="tk-num">1</span>, <span class="tk-num">2</span>, <span class="tk-num">3</span>};               <span class="tk-com">/* 不写长度，让编译器自己数 */</span>
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;a[0] = %d, a[4] = %d\n&quot;</span>, a[<span class="tk-num">0</span>], a[<span class="tk-num">4</span>]);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;b[0] = %d, b[1] = %d, b[2] = %d\n&quot;</span>, b[<span class="tk-num">0</span>], b[<span class="tk-num">1</span>], b[<span class="tk-num">2</span>]);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;c[3] = %d\n&quot;</span>, c[<span class="tk-num">3</span>]);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;d 有 %d 个元素\n&quot;</span>, (<span class="tk-kw">int</span>)(<span class="tk-kw">sizeof</span>(d) / <span class="tk-kw">sizeof</span>(d[<span class="tk-num">0</span>])));
+
+	a[<span class="tk-num">2</span>] = <span class="tk-num">100</span>;                        <span class="tk-com">/* 修改第 3 个元素 */</span>
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;改完之后 a[2] = %d\n&quot;</span>, a[<span class="tk-num">2</span>]);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">a[0] = 90, a[4] = 99
+b[0] = 1, b[1] = 2, b[2] = 0
+c[3] = 0
+d 有 3 个元素
+改完之后 a[2] = 100</code></pre></div><p><code>int c[5] = {0};</code> 这个写法请记牢：<strong>数组不会自动清零</strong>（和单个变量一样，里面是垃圾值），而<code>= {0}</code> 是最省事的全清零方式。</p><h3 id="sec-5">越界：本节最重要的警告</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 反面示例：越界访问 */</span>
+<span class="tk-kw">int</span> a[<span class="tk-num">5</span>] = {<span class="tk-num">1</span>, <span class="tk-num">2</span>, <span class="tk-num">3</span>, <span class="tk-num">4</span>, <span class="tk-num">5</span>};
+
+a[<span class="tk-num">5</span>] = <span class="tk-num">99</span>;              <span class="tk-com">/* 根本没有 a[5]！这是第 6 个格子，不属于你 */</span>
+<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d\n&quot;</span>, a[<span class="tk-num">5</span>]);</code></pre></div><p><strong>C 语言不检查数组越界。</strong> 越界之后可能发生：读到垃圾值、悄悄改掉隔壁变量的值、程序当场崩溃，<strong>或者什么都不发生</strong>。最后一种最坑——你的程序看起来一切正常，直到某天在飞机上出事。</p><p>请从现在开始养成习惯：<strong>每次写下 <code>a[i]</code>，都问自己一句&quot;i 会不会超出范围？&quot;</strong></p><h3 id="sec-6">数组长度用什么写</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#define N 5            /* 推荐：宏常量，全大写是行业习惯 */</span>
+
+<span class="tk-kw">int</span> a[N];
+<span class="tk-com">/** 上一行的这个推荐是AI写的，编者这里做几个说明：
+  * 宏的作用是在编译之前把前面的内容替换为后面的内容
+  * 关于宏的详细内容本节不展开
+  * 实际使用中不建议使用像 N 这种过于简单的宏，很容易造成程序混乱
+  */</span></code></pre></div><ul><li>数组长度要用<strong>编译时就确定的常量</strong>：直接写字面量 <code>5</code>，或者用 <code>#define</code> 出来的宏。</li><li><strong>别写 <code>const int N = 5;</code> 然后 <code>int a[N];</code>。</strong> 在 C 语言里 <code>const</code> 变量不算&quot;常量表达式&quot;，Visual Studio 会直接报错；gcc 会把它当变长数组放行，于是你换个编译器就炸了。要常量就用 <code>#define N 5</code>。</li><li>C99 允许用变量当长度（叫&quot;变长数组&quot;），但<strong>不推荐</strong>。</li></ul><hr><h2 id="sec-7">5.2 遍历数组</h2><p>&quot;遍历&quot;就是<strong>从头到尾把每个元素都过一遍</strong>，这是数组最基本的操作，靠 <code>for</code> 循环完成。</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> score[<span class="tk-num">5</span>] = {<span class="tk-num">90</span>, <span class="tk-num">85</span>, <span class="tk-num">77</span>, <span class="tk-num">68</span>, <span class="tk-num">99</span>};
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">5</span>; i++) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;score[%d] = %d\n&quot;</span>, i, score[i]);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">score[0] = 90
+score[1] = 85
+score[2] = 77
+score[3] = 68
+score[4] = 99</code></pre></div><p><strong>注意循环条件是 <code>i &lt; 5</code>，不是 <code>i &lt;= 5</code>。</strong> &quot;下标从 0 数到 n−1&quot;是新手最常错的地方，可以养成一个习惯，遍历数组时，前面初始化临时变量为 0 ，后面终止条件写 <code>&lt; (你的数组长度)</code> 。</p><h3 id="sec-8">不要把 5 写死：用 sizeof 算长度</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> score[<span class="tk-num">5</span>] = {<span class="tk-num">90</span>, <span class="tk-num">85</span>, <span class="tk-num">77</span>, <span class="tk-num">68</span>, <span class="tk-num">99</span>};
+	<span class="tk-kw">int</span> len = (<span class="tk-kw">int</span>)(<span class="tk-kw">sizeof</span>(score) / <span class="tk-kw">sizeof</span>(score[<span class="tk-num">0</span>]));
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;这个数组有 %d 个元素\n&quot;</span>, len);
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; len; i++) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d &quot;</span>, score[i]);
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">这个数组有 5 个元素
+90 85 77 68 99</code></pre></div><p>道理很简单：<code>sizeof(score)</code> 是<strong>整个数组</strong>占的字节数（5 × 4 = 20），<code>sizeof(score[0])</code> 是<strong>一个元素</strong>占的字节数（4），一除就是个数。这样以后数组改成 8 个元素，循环一个字都不用动。</p><blockquote><p>这个套路<strong>只在数组定义所在的地方有效</strong>，一旦数组被传给函数就不灵了（原因和指针有关，下一轮讲）。现在照用就行。</p></blockquote><h3 id="sec-9">从键盘读入数组</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> score[<span class="tk-num">5</span>] = {<span class="tk-num">0</span>};
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入 5 个成绩，用空格隔开：&quot;</span>);
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">5</span>; i++) {
+		<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;score[i]);
+	}
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">5</span>; i++) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;第 %d 个：%d\n&quot;</span>, i + <span class="tk-num">1</span>, score[i]);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输入 <code>90 85 77 68 99</code>：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">请输入 5 个成绩，用空格隔开：第 1 个：90
+第 2 个：85
+第 3 个：77
+第 4 个：68
+第 5 个：99</code></pre></div><hr><h2 id="sec-10">5.3 四个常用基础模板</h2><p>数组的操作来来去去就这么几类，把它们变成肌肉记忆，以后写单片机代码时你就只用想业务，不用想语法。</p><h3 id="sec-11">模板一：求和与平均</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> score[<span class="tk-num">5</span>] = {<span class="tk-num">90</span>, <span class="tk-num">85</span>, <span class="tk-num">77</span>, <span class="tk-num">68</span>, <span class="tk-num">99</span>};
+	<span class="tk-kw">int</span> len = (<span class="tk-kw">int</span>)(<span class="tk-kw">sizeof</span>(score) / <span class="tk-kw">sizeof</span>(score[<span class="tk-num">0</span>]));
+	<span class="tk-kw">int</span> sum = <span class="tk-num">0</span>;
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; len; i++) {
+		sum += score[i];
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;总分 = %d\n&quot;</span>, sum);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;平均分 = %.2f\n&quot;</span>, (<span class="tk-kw">double</span>)sum / len);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">总分 = 419
+平均分 = 83.80</code></pre></div><p>现在可以回答 5.0 里那个&quot;高于平均分&quot;的问题了——<strong>数组让你能回头看第二遍</strong>：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 片段：接在上面的代码后面 */</span>
+<span class="tk-fn">printf</span>(<span class="tk-str">&quot;高于平均分的有：&quot;</span>);
+<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; len; i++) {
+	<span class="tk-kw">if</span> ((<span class="tk-kw">double</span>)score[i] &gt; (<span class="tk-kw">double</span>)sum / len) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d &quot;</span>, score[i]);
+	}
+}
+<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);</code></pre></div><p>编者注：事实上，求均值的时候如果你不在意程序是否需要记忆，可以考虑直接对输入累加后除以个数，下面几个模板同理。</p><h3 id="sec-12">模板二：最大值、最小值</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> score[<span class="tk-num">5</span>] = {<span class="tk-num">90</span>, <span class="tk-num">85</span>, <span class="tk-num">77</span>, <span class="tk-num">68</span>, <span class="tk-num">99</span>};
+	<span class="tk-kw">int</span> len = (<span class="tk-kw">int</span>)(<span class="tk-kw">sizeof</span>(score) / <span class="tk-kw">sizeof</span>(score[<span class="tk-num">0</span>]));
+	<span class="tk-kw">int</span> max = score[<span class="tk-num">0</span>];
+	<span class="tk-kw">int</span> min = score[<span class="tk-num">0</span>];
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">1</span>; i &lt; len; i++) {      <span class="tk-com">/* 每个上来的新数字与最值比较是否替换 */</span>
+		<span class="tk-kw">if</span> (score[i] &gt; max) {
+			max = score[i];
+		}
+		<span class="tk-kw">if</span> (score[i] &lt; min) {
+			min = score[i];
+		}
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;最高分 = %d，最低分 = %d\n&quot;</span>, max, min);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">最高分 = 99，最低分 = 68</code></pre></div><p><strong>注意 <code>max = score[0]</code>，不是 <code>max = 0</code>。</strong> 如果数组里全是负数（比如冬天的温度、电压的偏差量），从 0 开始就全错了。</p><h3 id="sec-13">模板三：查找（flag + break）</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> score[<span class="tk-num">5</span>] = {<span class="tk-num">90</span>, <span class="tk-num">85</span>, <span class="tk-num">77</span>, <span class="tk-num">68</span>, <span class="tk-num">99</span>};
+	<span class="tk-kw">int</span> len = (<span class="tk-kw">int</span>)(<span class="tk-kw">sizeof</span>(score) / <span class="tk-kw">sizeof</span>(score[<span class="tk-num">0</span>]));
+	<span class="tk-kw">int</span> target = <span class="tk-num">0</span>;
+	<span class="tk-kw">int</span> found = <span class="tk-num">0</span>;                 <span class="tk-com">/* 0 = 还没找到，1 = 找到了 */</span>
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入要找的分数：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;target);
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; len; i++) {
+		<span class="tk-kw">if</span> (score[i] == target) {
+			found = <span class="tk-num">1</span>;
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;找到了，它是第 %d 个（下标 %d）\n&quot;</span>, i + <span class="tk-num">1</span>, i);
+			<span class="tk-kw">break</span>;                 <span class="tk-com">/* 找到就收工，别再白找 */</span>
+		}
+	}
+
+	<span class="tk-kw">if</span> (found == <span class="tk-num">0</span>) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;没有找到 %d\n&quot;</span>, target);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输入 <code>77</code>：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">请输入要找的分数：找到了，它是第 3 个（下标 2）</code></pre></div><p>这个 <strong>flag（标志变量）+ break</strong> 的结构，和导学案4练习 7 判断素数时用的完全一样，是编程里出现频率最高的套路之一。</p><h3 id="sec-14">模板四：冒泡排序</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> a[<span class="tk-num">6</span>] = {<span class="tk-num">5</span>, <span class="tk-num">2</span>, <span class="tk-num">9</span>, <span class="tk-num">1</span>, <span class="tk-num">7</span>, <span class="tk-num">3</span>};
+	<span class="tk-kw">int</span> len = (<span class="tk-kw">int</span>)(<span class="tk-kw">sizeof</span>(a) / <span class="tk-kw">sizeof</span>(a[<span class="tk-num">0</span>]));
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; len - <span class="tk-num">1</span>; i++) {           <span class="tk-com">/* 外层：一共走 len-1 趟 */</span>
+		<span class="tk-kw">for</span> (<span class="tk-kw">int</span> j = <span class="tk-num">0</span>; j &lt; len - <span class="tk-num">1</span> - i; j++) {   <span class="tk-com">/* 内层：相邻两个比一比 */</span>
+			<span class="tk-kw">if</span> (a[j] &gt; a[j + <span class="tk-num">1</span>]) {
+				<span class="tk-kw">int</span> t = a[j];                     <span class="tk-com">/* 三杯水交换 */</span>
+				a[j] = a[j + <span class="tk-num">1</span>];
+				a[j + <span class="tk-num">1</span>] = t;
+			}
+		}
+	}
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; len; i++) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d &quot;</span>, a[i]);
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">1 2 3 5 7 9</code></pre></div><p>思路：<strong>每一趟都把当前最大的那个&quot;冒&quot;到末尾</strong>，所以第 i 趟之后，末尾 i 个数已经排好了，内层只需要走到 <code>len - 1 - i</code>。</p><p>编者注：冒泡排序其实效率并不很高，但还算比较好理解，建议掌握。</p><hr><h2 id="sec-15">5.4 二维数组：数组的数组</h2><p>数组的每个元素也可以是一个数组，这样就排成了<strong>表格</strong>（矩阵）。</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">int</span> table[<span class="tk-num">3</span>][<span class="tk-num">4</span>];      <span class="tk-com">/* 3 行 4 列，一共 12 个 int */</span></code></pre></div><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">          列0   列1   列2   列3
+  行0  [   1     2     3     4  ]
+  行1  [   5     6     7     8  ]
+  行2  [   9    10    11    12  ]</code></pre></div><p>访问方式：<code>table[1][2]</code>，<strong>先写行号，再写列号，都从 0 开始</strong>，上图里它是 <code>7</code>。</p><p>初始化：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">int</span> t[<span class="tk-num">2</span>][<span class="tk-num">3</span>] = {{<span class="tk-num">1</span>, <span class="tk-num">2</span>, <span class="tk-num">3</span>}, {<span class="tk-num">4</span>, <span class="tk-num">5</span>, <span class="tk-num">6</span>}};    <span class="tk-com">/* 两行，每行三个 */</span>
+<span class="tk-kw">int</span> z[<span class="tk-num">3</span>][<span class="tk-num">3</span>] = {<span class="tk-num">0</span>};                        <span class="tk-com">/* 全部清零 */</span></code></pre></div><p>遍历需要<strong>两层循环</strong>：外层管行，内层管列。</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> t[<span class="tk-num">3</span>][<span class="tk-num">4</span>] = {
+		{ <span class="tk-num">1</span>,  <span class="tk-num">2</span>,  <span class="tk-num">3</span>,  <span class="tk-num">4</span>},
+		{ <span class="tk-num">5</span>,  <span class="tk-num">6</span>,  <span class="tk-num">7</span>,  <span class="tk-num">8</span>},
+		{ <span class="tk-num">9</span>, <span class="tk-num">10</span>, <span class="tk-num">11</span>, <span class="tk-num">12</span>}
+	};
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">3</span>; i++) {          <span class="tk-com">/* 行 */</span>
+		<span class="tk-kw">for</span> (<span class="tk-kw">int</span> j = <span class="tk-num">0</span>; j &lt; <span class="tk-num">4</span>; j++) {      <span class="tk-com">/* 列 */</span>
+			<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%4d&quot;</span>, t[i][j]);
+		}
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">   1   2   3   4
+   5   6   7   8
+   9  10  11  12</code></pre></div><p>（<code>%4d</code> 让每个数占 4 位、右对齐，表格才整齐。）</p><p>二维数组在单片机里同样常见：一张地图、一个棋盘、一幅图像的像素、一块传感器的标定表、姿态解算里的矩阵，都是二维的。<strong>练习 5 会让你算主对角线之和。</strong></p><hr><h2 id="sec-16">5.5 字符数组与字符串初步</h2><p>C 语言里<strong>没有&quot;字符串类型&quot;</strong>。所谓字符串，就是<strong>一个字符数组，末尾用一个特殊字符 <code>'\0'</code> 标记结束</strong>。</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">char</span> word[<span class="tk-num">6</span>] = {<span class="tk-str">'H'</span>, <span class="tk-str">'e'</span>, <span class="tk-str">'l'</span>, <span class="tk-str">'l'</span>, <span class="tk-str">'o'</span>, <span class="tk-str">'\0'</span>};   <span class="tk-com">/* 一个一个字符写出来 */</span>
+<span class="tk-kw">char</span> text[] = <span class="tk-str">&quot;hello&quot;</span>;                            <span class="tk-com">/* 完全等价，简洁得多 */</span></code></pre></div><p><code>'\0'</code> 是<strong>结束标记</strong>，它占 1 个字节，但不算在内容里。所以装下 5 个字母需要 <strong>6</strong> 个格子——这就是为什么上面写的是 <code>char word[6]</code>。</p><p>用双引号写字符串时，编译器会<strong>自动帮你把 <code>'\0'</code> 加上</strong>，你不用管。</p><h3 id="sec-17">打印与遍历</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">char</span> text[] = <span class="tk-str">&quot;hello&quot;</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%s\n&quot;</span>, text);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;sizeof 数格子 = %d\n&quot;</span>, (<span class="tk-kw">int</span>)<span class="tk-kw">sizeof</span>(text));
+
+	<span class="tk-kw">int</span> count = <span class="tk-num">0</span>;
+	<span class="tk-kw">while</span> (text[count] != <span class="tk-str">'\0'</span>) {        <span class="tk-com">/* 数到结束标记为止 */</span>
+		count++;
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;字符个数 = %d\n&quot;</span>, count);
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;第一个字符 = %c\n&quot;</span>, text[<span class="tk-num">0</span>]);
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;逐个打印：&quot;</span>);
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; text[i] != <span class="tk-str">'\0'</span>; i++) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%c-&quot;</span>, text[i]);
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">hello
+sizeof 数格子 = 6
+字符个数 = 5
+第一个字符 = h
+逐个打印：h-e-l-l-o-</code></pre></div><p>注意三件事：</p><ol><li><code>%s</code> 会<strong>从头一个个打印，遇到 <code>'\0'</code> 就停</strong>，所以你不需要告诉它有几个字符。</li><li><code>sizeof(text)</code> 是 <strong>6</strong>，因为它数的是&quot;占了几个格子&quot;（含 <code>'\0'</code>），<strong>不是字符个数</strong>。</li><li><code>printf(&quot;%s&quot;, text)</code> 里<strong>不写 <code>&amp;</code></strong>，直接写数组名。</li></ol><h3 id="sec-18">读入字符串</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">char</span> name[<span class="tk-num">20</span>] = <span class="tk-str">&quot;&quot;</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入你的名字（不含空格）：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%s&quot;</span>, name);              <span class="tk-com">/* 这里也不写 &amp; */</span>
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;你好，%s！\n&quot;</span>, name);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输入 <code>Mike</code>：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">请输入你的名字（不含空格）：你好，Mike！</code></pre></div><p>四条要点：</p><ol><li><strong><code>scanf(&quot;%s&quot;, name)</code> 不写 <code>&amp;</code>。</strong> 为什么？和指针有关，本轮不展开——<strong>现在只需要记住&quot;字符串是例外&quot;</strong>。</li><li><strong><code>%s</code> 遇到空格、Tab、回车就停止</strong>，所以读不进 <code>Hello World</code> 这种带空格的句子，只会拿到 <code>Hello</code>。</li><li><strong>绝对不要用 <code>gets()</code>。</strong> 它不检查长度，输入太长就会越界，是历史上无数安全漏洞的源头，已经被 C 标准废除了。</li><li>数组要<strong>留够空间</strong>：<code>char name[20]</code> 最多装 19 个字符（还要留一格给 <code>'\0'</code>）。输入超长同样会越界。</li></ol><blockquote><p>想知道字符串长度，除了自己写循环数，C 标准库有现成的 <code>strlen()</code>（需要 <code>#include &lt;string.h&gt;</code>），还有 <code>strcpy()</code>（复制）、<code>strcmp()</code>（比较）。本轮不展开，你想用可以自己查——<strong>但请先能用循环自己数出来</strong>，那说明你真的懂它。</p></blockquote><hr><h3 id="sec-19">一个必须提前打的预防针</h3><p>单片机的内存小得可怜：常见的 STM32F103C8T6 只有 <strong>20 KB</strong> 的 RAM，而你的电脑有 16 GB（差了将近一百万倍）。<strong>数组开太大，程序会直接跑飞，或者根本编译不过。</strong> 在电脑上随手写 <code>int a[1000000]</code> 的习惯，到了单片机上会要你的命。以后每写一行数组定义，都先问自己一句：<strong>&quot;我真的需要这么多吗？&quot;</strong></p><hr><h2 id="sec-20">5.6 综合练习</h2><blockquote><p>本节练习用于自练与自查，<strong>不强制完成、不需要提交</strong>；需要提交的是实验室统一布置的作业（作业一 / 作业二）。 参考代码统一放在<strong>本节末尾</strong>，做完之前不要翻。</p></blockquote><h3 id="sec-21">练习 1｜成绩统计</h3> <a class="jump" href="#ans-1">参考代码 ↧</a><p>先读入人数 <code>n</code>（不超过 20），再读入 <code>n</code> 个成绩，输出<strong>最高分、最低分、平均分（保留两位）、及格人数</strong>。</p><blockquote><p><strong>提示</strong>：数组要开 20 个格子（因为写代码时不知道 <code>n</code> 是几），但循环只走到 <code>n</code>。这就是 5.0 里说的&quot;个数在运行时才知道&quot;的解法。 <code>n</code> 不合法（小于等于 0 或超过 20）时要拦下来，别让它进循环。</p></blockquote><h3 id="sec-22">练习 2｜逆序</h3> <a class="jump" href="#ans-2">参考代码 ↧</a><p>读入 10 个整数，<strong>倒着打印</strong>出来。</p><blockquote><p><strong>提示</strong>：最简单的做法是循环从 <code>i = 9</code> 走到 <code>i = 0</code>（<code>i--</code>），数组根本不用动。 <strong>选做</strong>：真的把数组本身倒过来（首尾交换：<code>a[0]</code> 和 <code>a[9]</code> 换、<code>a[1]</code> 和 <code>a[8]</code> 换……）。想想循环只需要走几圈？走多了会发生什么？</p></blockquote><h3 id="sec-23">练习 3｜不及格名单</h3><p>用练习 1 的数据，把所有不及格（低于 60）的分数打印出来，每行一个；如果全都及格，就打印一句&quot;全部及格&quot;。</p><blockquote><p><strong>提示</strong>：一个 <code>for</code> + 一个 <code>if</code> + 一个 flag（想想 5.3 套路三怎么写的）。这题不给答案，它比套路三还简单。</p></blockquote><h3 id="sec-24">练习 4｜排序</h3> <a class="jump" href="#ans-4">参考代码 ↧</a><p>读入 8 个整数，用冒泡排序<strong>从大到小</strong>输出。</p><blockquote><p><strong>提示</strong>：把 5.3 套路四的代码敲一遍，然后只改一个符号。改完请自测：输入 <code>3 1 4 1 5 9 2 6</code>，正确输出是 <code>9 6 5 4 3 2 1 1</code>。</p></blockquote><h3 id="sec-25">练习 5｜主对角线之和</h3> <a class="jump" href="#ans-5">参考代码 ↧</a><p>定义一个 3×3 的二维数组，用<strong>循环</strong>求出主对角线（左上到右下）三个数之和。</p><blockquote><p><strong>提示</strong>：主对角线上的元素有什么共同特点？（行号和列号的关系）</p></blockquote><h3 id="sec-26">练习 6｜单词处理</h3> <a class="jump" href="#ans-6">参考代码 ↧</a><p>读入一个不含空格的单词，输出它的<strong>字符个数</strong>和<strong>倒序</strong>（例如输入 <code>hello</code>，输出 <code>5</code> 和 <code>olleh</code>）。</p><blockquote><p><strong>提示</strong>：自己用循环数到 <code>'\0'</code> 来求长度（5.5 讲过）。倒序打印就是练习 2 的思路，只不过对象换成了字符数组。</p></blockquote><h3 id="sec-27">练习 7｜斐波那契数列</h3><p>把斐波那契数列的前 20 项存进数组并打印（<code>1 1 2 3 5 8 13 ...</code>，从第三项起，每一项是前两项之和）。</p><blockquote><p><strong>提示</strong>：<code>a[i] = a[i - 1] + a[i - 2];</code>，所以循环要从 <code>i = 2</code> 开始，前两项先手动填好。 顺便思考：如果用 <code>int</code>，到第几项就会溢出？换成 <code>long long</code> 又能撑到第几项？（回收导学案2 2.5）</p></blockquote><hr><h2 id="sec-28">5.7 本节小结与自查</h2><p><strong>学完本节，你应该能做到：</strong></p><ul><li>[ ] 定义、初始化一个数组，说清下标为什么从 0 开始、<code>a[5]</code> 意味着什么</li><li>[ ] 用 <code>for</code> 遍历数组，并且<strong>不越界</strong>（<code>i &lt; len</code> 而不是 <code>i &lt;= len</code>）</li><li>[ ] 用 <code>sizeof(a) / sizeof(a[0])</code> 算出数组元素个数</li><li>[ ] 默写四个套路：求和与平均、打擂台求最值、flag 查找、冒泡排序</li><li>[ ] 解释为什么求最大值要从 <code>max = a[0]</code> 开始，而不是 <code>max = 0</code></li><li>[ ] 定义并遍历二维数组，说清 <code>t[i][j]</code> 里哪个是行、哪个是列</li><li>[ ] 说清字符串和字符数组的关系，<code>'\0'</code> 是干什么的，<code>sizeof</code> 数出来的为什么比字符个数多 1</li><li>[ ] 知道 <code>scanf(&quot;%d&quot;, &amp;a[i])</code> 要写 <code>&amp;</code>，而 <code>scanf(&quot;%s&quot;, word)</code> 不写</li></ul><blockquote><p><strong>本轮到此为止。</strong> 你已经掌握了顺序、选择、循环三大结构，加上数组。 <strong>下一轮</strong>会讲：函数（把重复的逻辑打包）、指针（真正用上&quot;地址&quot;这件事）、字符串处理、结构体（把不同类型的数据捆在一起）。</p></blockquote><h2 id="sec-29">5.8 练习参考代码（做完再看）</h2><details class="ans" id="ans-1"><summary class="ans-title">练习 1 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-pre">#define MAX 20</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> score[MAX] = {<span class="tk-num">0</span>};
+	<span class="tk-kw">int</span> n = <span class="tk-num">0</span>;
+	<span class="tk-kw">int</span> sum = <span class="tk-num">0</span>;
+	<span class="tk-kw">int</span> pass = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入人数（不超过 %d）：&quot;</span>, MAX);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;n);
+
+	<span class="tk-kw">if</span> (n &lt;= <span class="tk-num">0</span> || n &gt; MAX) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;人数不合法\n&quot;</span>);
+		<span class="tk-kw">return</span> <span class="tk-num">1</span>;                    <span class="tk-com">/* 返回非 0，告诉操作系统&quot;这次不正常&quot; */</span>
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请依次输入 %d 个成绩：&quot;</span>, n);
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; n; i++) {
+		<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;score[i]);
+		sum += score[i];
+		<span class="tk-kw">if</span> (score[i] &gt;= <span class="tk-num">60</span>) {
+			pass++;
+		}
+	}
+
+	<span class="tk-kw">int</span> max = score[<span class="tk-num">0</span>];
+	<span class="tk-kw">int</span> min = score[<span class="tk-num">0</span>];
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">1</span>; i &lt; n; i++) {
+		<span class="tk-kw">if</span> (score[i] &gt; max) {
+			max = score[i];
+		}
+		<span class="tk-kw">if</span> (score[i] &lt; min) {
+			min = score[i];
+		}
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;最高分 = %d\n&quot;</span>, max);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;最低分 = %d\n&quot;</span>, min);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;平均分 = %.2f\n&quot;</span>, (<span class="tk-kw">double</span>)sum / n);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;及格人数 = %d\n&quot;</span>, pass);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><blockquote><p><code>return 1;</code> 这一句回收了导学案1讲过的&quot;程序状态码&quot;：0 表示正常结束，非 0 表示出了状况。</p></details></blockquote><details class="ans" id="ans-2"><summary class="ans-title">练习 2 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> a[<span class="tk-num">10</span>] = {<span class="tk-num">0</span>};
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入 10 个整数：&quot;</span>);
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">10</span>; i++) {
+		<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;a[i]);
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;倒着打印：&quot;</span>);
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">9</span>; i &gt;= <span class="tk-num">0</span>; i--) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d &quot;</span>, a[i]);
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+
+	<span class="tk-com">/* 选做：真的把数组倒过来，只走一半 */</span>
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">10</span> / <span class="tk-num">2</span>; i++) {
+		<span class="tk-kw">int</span> t = a[i];
+		a[i] = a[<span class="tk-num">9</span> - i];
+		a[<span class="tk-num">9</span> - i] = t;
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;倒过来之后：&quot;</span>);
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">10</span>; i++) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d &quot;</span>, a[i]);
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><blockquote><p>只走一半（<code>i &lt; 10 / 2</code>）是关键。<strong>如果走完 10 圈，前半段和后半段会再换回去，等于白忙一场。</strong></p></details></blockquote><details class="ans" id="ans-4"><summary class="ans-title">练习 4 参考代码（只给出与套路四不同的那一行）</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-com">/* 从大到小：把比较符号反过来 */</span>
+<span class="tk-kw">if</span> (a[j] &lt; a[j + <span class="tk-num">1</span>]) {
+	<span class="tk-kw">int</span> t = a[j];
+	a[j] = a[j + <span class="tk-num">1</span>];
+	a[j + <span class="tk-num">1</span>] = t;
+}</code></pre></div><p>其余部分（读入 8 个数、两层循环、打印）与 5.3 套路四完全一样。</p></details><details class="ans" id="ans-5"><summary class="ans-title">练习 5 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> t[<span class="tk-num">3</span>][<span class="tk-num">3</span>] = {
+		{<span class="tk-num">1</span>, <span class="tk-num">2</span>, <span class="tk-num">3</span>},
+		{<span class="tk-num">4</span>, <span class="tk-num">5</span>, <span class="tk-num">6</span>},
+		{<span class="tk-num">7</span>, <span class="tk-num">8</span>, <span class="tk-num">9</span>}
+	};
+	<span class="tk-kw">int</span> sum = <span class="tk-num">0</span>;
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">3</span>; i++) {
+		sum += t[i][i];          <span class="tk-com">/* 主对角线：行号 == 列号 */</span>
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;主对角线之和 = %d\n&quot;</span>, sum);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：<code>主对角线之和 = 15</code>（1 + 5 + 9）</p><blockquote><p><strong>选做</strong>：再求副对角线（<code>t[i][2 - i]</code>），以及每一行的平均值。</p></details></blockquote><details class="ans" id="ans-6"><summary class="ans-title">练习 6 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">char</span> word[<span class="tk-num">32</span>] = <span class="tk-str">&quot;&quot;</span>;
+	<span class="tk-kw">int</span> len = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入一个不含空格的单词：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%s&quot;</span>, word);            <span class="tk-com">/* 注意：不写 &amp; */</span>
+
+	<span class="tk-kw">while</span> (word[len] != <span class="tk-str">'\0'</span>) {
+		len++;
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;长度 = %d\n&quot;</span>, len);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;倒序 = &quot;</span>);
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = len - <span class="tk-num">1</span>; i &gt;= <span class="tk-num">0</span>; i--) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%c&quot;</span>, word[i]);
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输入 <code>hello</code>：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">请输入一个不含空格的单词：长度 = 5
+倒序 = olleh</code></pre></div><hr><blockquote><p>数组是&quot;一个名字管一排数据&quot;，它让程序第一次拥有了<strong>记忆</strong>。</p><p>从今天起，你写的不再是&quot;算一次就忘&quot;的脚本，而是&quot;能攒一批数据再统一处理&quot;的程序</p></details></blockquote>
+</article>
+<footer class="doc-footer"><p><small>作者：Mike-lin300</small></p><p><small>最后更新：2026-09-24</small></p><p><small>更新说明：无</small></p><p class="gen">本页由 tools/build.js 生成 · 2026-09-25 10:50 · 源文件 导学案5_数组.md · commit 0b61179</p></footer>
+<nav class="pn"><a href="guide-4x.html">← 导学案4 · 附加材料：飞控代码里的三个基础技巧（选读）</a><a href="guide-6.html">导学案6 · 函数：把重复的逻辑打包 →</a></nav>
+</main>
+<aside class="rail"><div class="rail-box"><div class="rail-title">本页目录</div><ol class="rail-toc"><li class="lv2"><a href="#sec-1">5.0 序</a></li><li class="lv2"><a href="#sec-2">5.1 定义与初始化</a></li><li class="lv3"><a href="#sec-3">一排连号的盒子</a></li><li class="lv3"><a href="#sec-4">初始化</a></li><li class="lv3"><a href="#sec-5">越界：本节最重要的警告</a></li><li class="lv3"><a href="#sec-6">数组长度用什么写</a></li><li class="lv2"><a href="#sec-7">5.2 遍历数组</a></li><li class="lv3"><a href="#sec-8">不要把 5 写死：用 sizeof 算长度</a></li><li class="lv3"><a href="#sec-9">从键盘读入数组</a></li><li class="lv2"><a href="#sec-10">5.3 四个常用基础模板</a></li><li class="lv3"><a href="#sec-11">模板一：求和与平均</a></li><li class="lv3"><a href="#sec-12">模板二：最大值、最小值</a></li><li class="lv3"><a href="#sec-13">模板三：查找（flag + break）</a></li><li class="lv3"><a href="#sec-14">模板四：冒泡排序</a></li><li class="lv2"><a href="#sec-15">5.4 二维数组：数组的数组</a></li><li class="lv2"><a href="#sec-16">5.5 字符数组与字符串初步</a></li><li class="lv3"><a href="#sec-17">打印与遍历</a></li><li class="lv3"><a href="#sec-18">读入字符串</a></li><li class="lv3"><a href="#sec-19">一个必须提前打的预防针</a></li><li class="lv2"><a href="#sec-20">5.6 综合练习</a></li><li class="lv3"><a href="#sec-21">练习 1｜成绩统计</a></li><li class="lv3"><a href="#sec-22">练习 2｜逆序</a></li><li class="lv3"><a href="#sec-23">练习 3｜不及格名单</a></li><li class="lv3"><a href="#sec-24">练习 4｜排序</a></li><li class="lv3"><a href="#sec-25">练习 5｜主对角线之和</a></li><li class="lv3"><a href="#sec-26">练习 6｜单词处理</a></li><li class="lv3"><a href="#sec-27">练习 7｜斐波那契数列</a></li><li class="lv2"><a href="#sec-28">5.7 本节小结与自查</a></li><li class="lv2"><a href="#sec-29">5.8 练习参考代码（做完再看）</a></li><li class="lv3"><a href="#ans-1">练习 1 参考代码</a></li><li class="lv3"><a href="#ans-2">练习 2 参考代码</a></li><li class="lv3"><a href="#ans-4">练习 4 参考代码（只给出与套路四不同的那一行）</a></li><li class="lv3"><a href="#ans-5">练习 5 参考代码</a></li><li class="lv3"><a href="#ans-6">练习 6 参考代码</a></li></ol></div></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+﻿# 临时文件
+_tmp_*
+_fix_*
+*.tmp
+node_modules/
+
+# 旧稿备份与AI执行文件（历史靠 git，不靠堆积旧文件）
+_archive/
+bak/
+

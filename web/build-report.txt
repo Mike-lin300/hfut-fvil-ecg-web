@@ -1,0 +1,20 @@
+构建时间 2026-09-25 10:50  commit 0b61179  范围 ALL
+生成：index.html, guide-0.html, guide-1.html, guide-2.html, guide-3.html, guide-4.html, guide-4x.html, guide-5.html, guide-6.html, guide-7.html, guide-8.html, hw-1.html, hw-2.html, app-1.html, app-2.html
+
+guide-0.html  章节=16  正文=4743 字符
+guide-1.html  章节=18  正文=12322 字符
+guide-2.html  章节=39  正文=32192 字符
+guide-3.html  章节=28  正文=27017 字符
+guide-4.html  章节=39  正文=31670 字符
+guide-4x.html  章节=7  正文=12452 字符
+guide-5.html  章节=34  正文=39210 字符
+guide-6.html  章节=20  正文=19985 字符
+guide-7.html  章节=14  正文=17096 字符
+guide-8.html  章节=12  正文=12252 字符
+hw-1.html  章节=13  正文=5592 字符
+hw-2.html  章节=15  正文=7184 字符
+app-1.html  章节=13  正文=13302 字符
+app-2.html  章节=3  正文=12904 字符
+
+警告 0 条：
+（无）

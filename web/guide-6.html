@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>导学案6 · 函数：把重复的逻辑打包 · 飞行器创新实验室 C 语言导学</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="top"><a class="brand" href="index.html">HFUT AircraftLab · C 语言导学</a><span class="stamp">生成于 2026-09-25 10:50 · 0b61179</span></header>
+<div class="layout">
+<nav class="side"><details open class="sidenav"><summary>全站目录</summary><ul><li><a href="guide-0.html"><span class="k">选读</span>0 计算机扫盲课</a></li><li><a href="guide-1.html"><span class="k">导学</span>1 认识 C 语言与开发环境</a></li><li><a href="guide-2.html"><span class="k">导学</span>2 输出、计算与输入</a></li><li><a href="guide-3.html"><span class="k">导学</span>3 判断：让程序学会做选择</a></li><li><a href="guide-4.html"><span class="k">导学</span>4 循环：让程序学会重复</a></li><li><a href="guide-4x.html"><span class="k">选读</span>4附加 附加材料：飞控代码里的三个基础技巧（选读）</a></li><li><a href="guide-5.html"><span class="k">导学</span>5 数组：让程序记住一串数据</a></li><li class="cur"><a href="guide-6.html"><span class="k">导学</span>6 函数：把重复的逻辑打包</a></li><li><a href="guide-7.html"><span class="k">导学</span>7 指针：地址这门手艺</a></li><li><a href="guide-8.html"><span class="k">导学</span>8 结构体：把数据捆成一个整体</a></li><li><a href="hw-1.html"><span class="k">作业</span>1 顺序、判断、循环与数组</a></li><li><a href="hw-2.html"><span class="k">作业</span>2 函数、指针、结构体与字符串</a></li><li><a href="app-1.html"><span class="k">附录</span>1 CMD 速查表</a></li><li><a href="app-2.html"><span class="k">附录</span>2 主控代码（飞控）</a></li></ul></details></nav>
+<main class="content">
+<h1 class="doctitle">导学案6 · 函数：把重复的逻辑打包</h1><dl class="doc-meta"><dt>前置要求</dt><dd>导学案5（会数组、会循环、会 switch）</dd><dt>参考课程</dt><dd>浙江大学 翁恺《C 语言程序设计》第 7 章（函数）</dd><dt>预计用时</dt><dd>1.5 小时（按需自取）</dd><dt>本节目标</dt><dd>说清函数是什么、有哪几个部分；会定义、声明、调用函数；理解参数是&quot;值传递&quot;</dd></dl>
+<details class="toc toc-top"><summary>本页目录</summary><ol><li class="lv2"><a href="#sec-1">6.0 序</a></li><li class="lv2"><a href="#sec-2">6.1 函数是什么</a></li><li class="lv2"><a href="#sec-3">6.2 函数的四个组成部分</a></li><li class="lv2"><a href="#sec-4">6.3 定义、调用与声明</a></li><li class="lv2"><a href="#sec-5">6.4 参数是怎么传的：值传递（本节最重要的一节）</a></li><li class="lv2"><a href="#sec-6">6.5 库函数：调用别人写好的函数</a></li><li class="lv3"><a href="#sec-7">随机数</a></li><li class="lv3"><a href="#sec-8">数学函数</a></li><li class="lv2"><a href="#sec-9">6.6 综合练习</a></li><li class="lv3"><a href="#sec-10">练习 1｜偶数判断</a></li><li class="lv3"><a href="#sec-11">练习 2｜三数取最大</a></li><li class="lv3"><a href="#sec-12">练习 3｜温度转换函数</a></li><li class="lv3"><a href="#sec-13">练习 4｜质数与选数</a></li><li class="lv3"><a href="#sec-14">练习 5（选做）｜用函数写冒泡排序</a></li><li class="lv2"><a href="#sec-15">6.7 本节小结与自查</a></li><li class="lv2"><a href="#sec-16">6.8 练习参考代码（做完再看）</a></li><li class="lv3"><a href="#ans-1">练习 1 参考代码</a></li><li class="lv3"><a href="#ans-2">练习 2 参考代码</a></li><li class="lv3"><a href="#ans-3">练习 3 参考代码</a></li><li class="lv3"><a href="#ans-4">练习 4 参考代码</a></li></ol></details>
+<article>
+<hr><h2 id="sec-1">6.0 序</h2><p>你已经用过很多函数了：<code>printf</code>、<code>scanf</code>、<code>main</code>——它们都是函数。这一节你要学会<strong>自己写函数</strong>。</p><p>为什么需要函数？三句话：</p><ol><li><strong>重复的代码只写一遍。</strong> 同一段逻辑要用五次，就写成一个函数调用五次，改 bug 只改一处。</li><li><strong>把大问题拆成小块。</strong> 一个 500 行的 <code>main</code> 没人看得懂；拆成十个各司其职的函数，每个都能单独看懂、单独测试。</li><li><strong>别人的成果直接拿来用。</strong> 你调 <code>printf</code> 时从没看过它的源码。以后 STM32 的 HAL 库、实验室的飞控代码，全是&quot;别人写好的函数&quot;，你要做的就是调用。</li></ol><p><strong>本节路线</strong>：<code>函数是什么</code> → <code>四个组成部分</code> → <code>定义、调用与声明</code> → <code>参数怎么传</code> → <code>库函数</code> → <code>练习</code></p><blockquote><p><strong>本节不讲</strong>：函数指针、递归、多文件工程（<code>.h</code> / <code>.c</code> 分离）。另外 C 语言没有&quot;重载&quot;这个词对应的东西，别处看到不用管。</p></blockquote><hr><h2 id="sec-2">6.1 函数是什么</h2><p>把函数想成一台<strong>加工机器</strong>：你往里投料（参数），它干活，然后吐出结果（返回值）。</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">         参数（投料）
+             ↓
+     ┌───────────────┐
+     │   函数（机器） │
+     └───────────────┘
+             ↓
+         返回值（成品）</code></pre></div><p>第一个自己写的函数：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">void</span> <span class="tk-fn">sayHello</span>(<span class="tk-kw">void</span>)            <span class="tk-com">/* 自定义函数：打招呼 */</span>
+{
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;你好，飞行器创新实验室\n&quot;</span>);
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-fn">sayHello</span>();                <span class="tk-com">/* 调用：想调几次调几次 */</span>
+	<span class="tk-fn">sayHello</span>();
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">你好，飞行器创新实验室
+你好，飞行器创新实验室</code></pre></div><p>注意两件事：</p><ul><li><strong>定义函数不会执行它</strong>，那只是&quot;登记了一台机器&quot;；<strong>调用</strong>（写 <code>sayHello();</code>）才会真的跑。</li><li><code>main</code> 也是一个函数，是程序的大门。你写的其他函数，都是从 <code>main</code> 里被叫起来的。</li></ul><hr><h2 id="sec-3">6.2 函数的四个组成部分</h2><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">返回值类型   函数名(参数列表)
+{
+    函数体（要执行的代码）
+    return 返回值;
+}</code></pre></div><p>拿一个真函数对号入座：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-kw">int</span> <span class="tk-fn">max</span>(<span class="tk-kw">int</span> a, <span class="tk-kw">int</span> b)      <span class="tk-com">/* 返回值类型 int，函数名 max，参数列表 (int a, int b) */</span>
+{
+	<span class="tk-kw">if</span> (a &gt; b) {
+		<span class="tk-kw">return</span> a;
+	}
+	<span class="tk-kw">return</span> b;              <span class="tk-com">/* 返回值 */</span>
+}</code></pre></div><div class="table-wrap"><table><thead><tr><th>部分</th><th>例子</th><th>说明</th></tr></thead><tbody><tr><td>返回值类型</td><td><code>int</code></td><td>这台机器吐出什么类型的结果；不需要吐东西就写 <code>void</code></td></tr><tr><td>函数名</td><td><code>max</code></td><td>命名规则和变量完全一样：字母数字下划线、不能数字开头、区分大小写</td></tr><tr><td>参数列表</td><td><code>(int a, int b)</code></td><td>投什么料；不需要投料就写 <code>(void)</code></td></tr><tr><td>函数体 + return</td><td><code>{ ... return b; }</code></td><td>怎么干活、吐什么；<code>return</code> 同时会<strong>立刻结束这个函数</strong></td></tr></tbody></table></div><p>两个必须记住的点：</p><ol><li><strong><code>void</code> 有两种用法</strong>：写在返回值位置表示&quot;不返回任何东西&quot;；写在参数位置表示&quot;不接受任何参数&quot;。</li><li><strong>非 <code>void</code> 函数必须每条路都有 <code>return</code>。</strong> 如果某条路走到函数末尾还没 return，返回值就是垃圾，而且编译器常常只给警告、不给错误。</li></ol><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">max</span>(<span class="tk-kw">int</span> a, <span class="tk-kw">int</span> b)
+{
+	<span class="tk-kw">if</span> (a &gt; b) {
+		<span class="tk-kw">return</span> a;
+	}
+	<span class="tk-kw">return</span> b;
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> r = <span class="tk-fn">max</span>(<span class="tk-num">3</span>, <span class="tk-num">7</span>);                          <span class="tk-com">/* 返回值可以存起来 */</span>
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;max(3, 7) = %d\n&quot;</span>, r);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;max(10, max(4, 6)) = %d\n&quot;</span>, <span class="tk-fn">max</span>(<span class="tk-num">10</span>, <span class="tk-fn">max</span>(<span class="tk-num">4</span>, <span class="tk-num">6</span>)));   <span class="tk-com">/* 也可以套着用 */</span>
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">max(3, 7) = 7
+max(10, max(4, 6)) = 10</code></pre></div><hr><h2 id="sec-4">6.3 定义、调用与声明</h2><p>函数要先&quot;登记&quot;才能被调用。登记有两种方式：<strong>定义</strong>（连机器一起造出来）和<strong>声明</strong>（只贴一张&quot;有这么台机器&quot;的说明书）。</p><p>最省事的写法：<strong>把函数定义写在 <code>main</code> 前面</strong>，本导学案全部采用这种写法。</p><p>但有时你希望 <code>main</code> 在最上面（读代码时先看主干），函数放在后面。这时编译器从上往下读，读到 <code>main</code> 里的 <code>max(3, 7)</code> 时还不认识 <code>max</code>，会报错。解决办法是<strong>先声明</strong>：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">max</span>(<span class="tk-kw">int</span> a, <span class="tk-kw">int</span> b);        <span class="tk-com">/* 声明（函数原型）：只有签名，没有函数体，以分号结尾 */</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;max(3, 7) = %d\n&quot;</span>, <span class="tk-fn">max</span>(<span class="tk-num">3</span>, <span class="tk-num">7</span>));
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">max</span>(<span class="tk-kw">int</span> a, <span class="tk-kw">int</span> b)         <span class="tk-com">/* 定义：真正的机器在这里 */</span>
+{
+	<span class="tk-kw">if</span> (a &gt; b) {
+		<span class="tk-kw">return</span> a;
+	}
+	<span class="tk-kw">return</span> b;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">max(3, 7) = 7</code></pre></div><p>声明和定义的差别只有一处：<strong>声明没有函数体，结尾是分号。</strong> 声明里的参数名甚至可以省略（<code>int max(int, int);</code>），但写上更清楚。</p><blockquote><p>一句话预告（不展开）：以后写多文件的 STM32 工程，<strong>声明放在 <code>.h</code> 文件里，定义放在 <code>.c</code> 文件里</strong>。你在 HAL 库里看到的那满屏 <code>.h</code>，干的就是这件事。</p></blockquote><hr><h2 id="sec-5">6.4 参数是怎么传的：值传递（本节最重要的一节）</h2><p>先看一个实验：</p><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">void</span> <span class="tk-fn">swap</span>(<span class="tk-kw">int</span> a, <span class="tk-kw">int</span> b)       <span class="tk-com">/* a、b 叫形参 */</span>
+{
+	<span class="tk-kw">int</span> t = a;
+	a = b;
+	b = t;
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;函数内：a = %d, b = %d\n&quot;</span>, a, b);
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> x = <span class="tk-num">1</span>, y = <span class="tk-num">2</span>;         <span class="tk-com">/* x、y 叫实参 */</span>
+	<span class="tk-fn">swap</span>(x, y);
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;函数外：x = %d, y = %d\n&quot;</span>, x, y);
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">函数内：a = 2, b = 1
+函数外：x = 1, y = 2</code></pre></div><p>函数里明明换好了，<strong>外面的 x 和 y 却纹丝不动</strong>。为什么？</p><blockquote><p><strong>C 语言的参数传递是&quot;值传递&quot;：调用时把实参的值复制一份交给形参，函数里操作的是副本。</strong> 函数一结束，副本销毁，原件毫发无损。</p></blockquote><p>所以 <code>swap(x, y)</code> 里被交换的，是 <code>x</code>、<code>y</code> 的两份复印件。这个结论非常重要，请记牢。</p><p>顺带两个推论：</p><ol><li><strong>形参名和实参名可以不同</strong>（上面就是 <code>a</code>/<code>b</code> 对 <code>x</code>/<code>y</code>），它们是互相独立的变量。</li><li><strong>函数里声明的变量叫局部变量</strong>，只在这个函数活着期间存在；两个函数里的同名变量互不相干，<code>main</code> 里的也一样。</li></ol><p>那如果我真的想让函数改到外面的变量呢？——<strong>把地址传进去</strong>。这就是下一节（导学案7 · 指针）要解决的事，也是 <code>scanf</code> 为什么要写 <code>&amp;</code> 的原因。这里先留个悬念。</p><hr><h2 id="sec-6">6.5 库函数：调用别人写好的函数</h2><p><code>#include &lt;stdio.h&gt;</code> 的本质，是把别人写好的函数的&quot;说明书&quot;拿进来，然后你就能调用了。常用的几个头文件：</p><div class="table-wrap"><table><thead><tr><th>头文件</th><th>里面有什么</th><th>例子</th></tr></thead><tbody><tr><td><code>&lt;stdio.h&gt;</code></td><td>输入输出</td><td><code>printf</code>、<code>scanf</code>、<code>getchar</code></td></tr><tr><td><code>&lt;stdlib.h&gt;</code></td><td>杂项：随机数、取绝对值、内存</td><td><code>rand</code>、<code>srand</code>、<code>abs</code></td></tr><tr><td><code>&lt;math.h&gt;</code></td><td>数学</td><td><code>sqrt</code>、<code>fabs</code>、<code>pow</code></td></tr><tr><td><code>&lt;string.h&gt;</code></td><td>字符串</td><td><code>strlen</code>、<code>strcpy</code>、<code>strcmp</code></td></tr></tbody></table></div><h3 id="sec-7">随机数</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+<span class="tk-pre">#include &lt;stdlib.h&gt;          /* rand / srand */</span>
+<span class="tk-pre">#include &lt;time.h&gt;            /* time */</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-fn">srand</span>((<span class="tk-kw">unsigned</span>)<span class="tk-fn">time</span>(<span class="tk-kw">NULL</span>));        <span class="tk-com">/* 用当前时间做种子，每次运行结果才不一样 */</span>
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">5</span>; i++) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d &quot;</span>, <span class="tk-fn">rand</span>() % <span class="tk-num">101</span>);    <span class="tk-com">/* 0 ~ 100 的随机整数 */</span>
+	}
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;\n&quot;</span>);
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;学号范围示例：%d\n&quot;</span>, <span class="tk-fn">rand</span>() % <span class="tk-num">11</span> + <span class="tk-num">100</span>);   <span class="tk-com">/* 100 ~ 110 */</span>
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出（每次运行都不同，下面是其中一次的结果）：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">63 44 34 18 81
+学号范围示例：101</code></pre></div><p>两条要点：</p><ul><li><code>rand()</code> 返回一个很大的随机整数，<strong>取余是控制范围的通用办法</strong>：<code>rand() % 101</code> 得 0~100，<code>rand() % 11 + 100</code> 得 100~110。</li><li>以上随机数本质是伪随机，它通过一个种子通过特定规律生成一串数字，如果种子一样那么生成的数字也就一样，写 <code>srand(...)</code> 的目的就是让时间当种子，实现每次调用时种子变化，产生的数字也就变成了随机数。</li></ul><h3 id="sec-8">数学函数</h3><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+<span class="tk-pre">#include &lt;math.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;sqrt(2)    = %.4f\n&quot;</span>, <span class="tk-fn">sqrt</span>(<span class="tk-num">2.0</span>));
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;fabs(-3.5) = %.1f\n&quot;</span>, <span class="tk-fn">fabs</span>(-<span class="tk-num">3.5</span>));
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;2 的 10 次方 = %.0f\n&quot;</span>, <span class="tk-fn">pow</span>(<span class="tk-num">2.0</span>, <span class="tk-num">10.0</span>));
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：</p><div class="codewrap"><button class="copybtn" type="button">复制</button><pre><code class="lang-text">sqrt(2)    = 1.4142
+fabs(-3.5) = 3.5
+2 的 10 次方 = 1024</code></pre></div><p><code>&lt;math.h&gt;</code> 里的函数<strong>参数和返回值都是 <code>double</code></strong>，所以写 <code>sqrt(2.0)</code> 比写 <code>sqrt(2)</code> 更规范（写 <code>2</code> 也能跑，会被自动转成 double）。</p><hr><h2 id="sec-9">6.6 综合练习</h2><blockquote><p>本节练习用于自练与自查，<strong>不强制完成、不需要提交</strong>；需要提交的是实验室统一布置的作业（作业一 / 作业二）。 参考代码统一放在<strong>本节末尾</strong>，做完之前不要翻。</p></blockquote><h3 id="sec-10">练习 1｜偶数判断</h3> <a class="jump" href="#ans-1">参考代码 ↧</a><p>写一个函数 <code>int isEven(int n)</code>，是偶数返回 1，否则返回 0。主函数读入一个整数，输出&quot;是偶数&quot;或&quot;不是偶数&quot;。</p><h3 id="sec-11">练习 2｜三数取最大</h3> <a class="jump" href="#ans-2">参考代码 ↧</a><p>写一个函数 <code>int max3(int a, int b, int c)</code>，返回三个数里的最大值。要求函数体内<strong>调用两次</strong>两数取大的逻辑（先写一个 <code>max2</code>）。</p><h3 id="sec-12">练习 3｜温度转换函数</h3> <a class="jump" href="#ans-3">参考代码 ↧</a><p>把导学案2的摄氏转华氏改写成函数 <code>double c2f(double c)</code>，主函数读入摄氏温度，输出华氏温度（保留一位小数）。</p><h3 id="sec-13">练习 4｜质数与选数</h3> <a class="jump" href="#ans-4">参考代码 ↧</a><p>写一个函数 <code>int isPrime(int n)</code> 判断质数（<code>n &gt;= 2</code>）。然后读入 4 个正整数，统计它们两两相加得到的 6 个和里有几个质数。*（这就是作业二第 2 题）*</p><h3 id="sec-14">练习 5（选做）｜用函数写冒泡排序</h3><p>用函数实现导学案5的冒泡排序：<code>void sortDesc(int a[], int len)</code>，把数组从大到小排好。提示：数组作参数的写法导学案7会正式讲，但你现在就可以先试 <code>int a[]</code> 这种写法。</p><hr><h2 id="sec-15">6.7 本节小结与自查</h2><p><strong>学完本节，你应该能做到：</strong></p><ul><li>[ ] 说清函数的四个组成部分，知道 <code>void</code> 在返回值位置和参数位置分别是什么意思</li><li>[ ] 自己定义并调用一个函数，知道&quot;定义不等于执行&quot;</li><li>[ ] 知道声明（函数原型）长什么样、什么时候必须写</li><li>[ ] 说清&quot;值传递&quot;：为什么函数里改形参，改不到外面的实参</li><li>[ ] 知道局部变量的作用范围</li><li>[ ] 会用 <code>rand()</code> / <code>srand()</code> 产生指定范围的随机数</li></ul><blockquote><p><strong>下一节</strong>：导学案7 · 指针。6.4 留下的悬念——怎么让函数改到外面的变量——在那里解开。</p></blockquote><h2 id="sec-16">6.8 练习参考代码（做完再看）</h2><details class="ans" id="ans-1"><summary class="ans-title">练习 1 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">isEven</span>(<span class="tk-kw">int</span> n)
+{
+	<span class="tk-kw">if</span> (n % <span class="tk-num">2</span> == <span class="tk-num">0</span>) {
+		<span class="tk-kw">return</span> <span class="tk-num">1</span>;
+	}
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> n = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入一个整数：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;n);
+
+	<span class="tk-kw">if</span> (<span class="tk-fn">isEven</span>(n)) {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d 是偶数\n&quot;</span>, n);
+	} <span class="tk-kw">else</span> {
+		<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%d 不是偶数\n&quot;</span>, n);
+	}
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div></details><details class="ans" id="ans-2"><summary class="ans-title">练习 2 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">max2</span>(<span class="tk-kw">int</span> a, <span class="tk-kw">int</span> b)
+{
+	<span class="tk-kw">if</span> (a &gt; b) {
+		<span class="tk-kw">return</span> a;
+	}
+	<span class="tk-kw">return</span> b;
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">max3</span>(<span class="tk-kw">int</span> a, <span class="tk-kw">int</span> b, <span class="tk-kw">int</span> c)
+{
+	<span class="tk-kw">return</span> <span class="tk-fn">max2</span>(<span class="tk-fn">max2</span>(a, b), c);
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;max3(3, 9, 5) = %d\n&quot;</span>, <span class="tk-fn">max3</span>(<span class="tk-num">3</span>, <span class="tk-num">9</span>, <span class="tk-num">5</span>));
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输出：<code>max3(3, 9, 5) = 9</code></p></details><details class="ans" id="ans-3"><summary class="ans-title">练习 3 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">double</span> <span class="tk-fn">c2f</span>(<span class="tk-kw">double</span> c)
+{
+	<span class="tk-kw">return</span> c * <span class="tk-num">9.0</span> / <span class="tk-num">5.0</span> + <span class="tk-num">32.0</span>;
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">double</span> c = <span class="tk-num">0.0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入摄氏温度：&quot;</span>);
+	<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%lf&quot;</span>, &amp;c);
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;%.1f 摄氏度 = %.1f 华氏度\n&quot;</span>, c, <span class="tk-fn">c2f</span>(c));
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div></details><details class="ans" id="ans-4"><summary class="ans-title">练习 4 参考代码</summary><div class="codewrap dark"><button class="copybtn" type="button">复制</button><pre><code class="lang-c"><span class="tk-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="tk-kw">int</span> <span class="tk-fn">isPrime</span>(<span class="tk-kw">int</span> n)
+{
+	<span class="tk-kw">if</span> (n &lt; <span class="tk-num">2</span>) {
+		<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+	}
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">2</span>; i * i &lt;= n; i++) {
+		<span class="tk-kw">if</span> (n % i == <span class="tk-num">0</span>) {
+			<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+		}
+	}
+	<span class="tk-kw">return</span> <span class="tk-num">1</span>;
+}
+
+<span class="tk-kw">int</span> <span class="tk-fn">main</span>(<span class="tk-kw">void</span>)
+{
+	<span class="tk-kw">int</span> a[<span class="tk-num">4</span>] = {<span class="tk-num">0</span>};
+	<span class="tk-kw">int</span> count = <span class="tk-num">0</span>;
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;请输入 4 个正整数：&quot;</span>);
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">4</span>; i++) {
+		<span class="tk-fn">scanf</span>(<span class="tk-str">&quot;%d&quot;</span>, &amp;a[i]);
+	}
+
+	<span class="tk-kw">for</span> (<span class="tk-kw">int</span> i = <span class="tk-num">0</span>; i &lt; <span class="tk-num">4</span>; i++) {
+		<span class="tk-kw">for</span> (<span class="tk-kw">int</span> j = i + <span class="tk-num">1</span>; j &lt; <span class="tk-num">4</span>; j++) {
+			<span class="tk-kw">int</span> s = a[i] + a[j];
+			<span class="tk-kw">if</span> (<span class="tk-fn">isPrime</span>(s)) {
+				count++;
+			}
+		}
+	}
+
+	<span class="tk-fn">printf</span>(<span class="tk-str">&quot;质数的个数 = %d\n&quot;</span>, count);
+
+	<span class="tk-kw">return</span> <span class="tk-num">0</span>;
+}</code></pre></div><p>输入 <code>1 2 3 4</code>，输出 <code>质数的个数 = 4</code>，和作业二给的示例一致。</p><hr></details>
+</article>
+<footer class="doc-footer"><p>函数是&quot;把一段逻辑起个名字&quot;。从这一节起，你写的不再是&quot;一长串步骤&quot;，而是&quot;一堆各司其职的小机器&quot;。</p><p>这个习惯会直接决定你以后能不能读懂飞控代码：那里几乎每一行都在调用别人写好的函数。</p><p><small>作者：Mike-lin300</small></p><p><small>最后更新：2026-09-25</small></p><p><small>更新说明：无（新编写）</small></p><p class="gen">本页由 tools/build.js 生成 · 2026-09-25 10:50 · 源文件 导学案6_函数.md · commit 0b61179</p></footer>
+<nav class="pn"><a href="guide-5.html">← 导学案5 · 数组：让程序记住一串数据</a><a href="guide-7.html">导学案7 · 指针：地址这门手艺 →</a></nav>
+</main>
+<aside class="rail"><div class="rail-box"><div class="rail-title">本页目录</div><ol class="rail-toc"><li class="lv2"><a href="#sec-1">6.0 序</a></li><li class="lv2"><a href="#sec-2">6.1 函数是什么</a></li><li class="lv2"><a href="#sec-3">6.2 函数的四个组成部分</a></li><li class="lv2"><a href="#sec-4">6.3 定义、调用与声明</a></li><li class="lv2"><a href="#sec-5">6.4 参数是怎么传的：值传递（本节最重要的一节）</a></li><li class="lv2"><a href="#sec-6">6.5 库函数：调用别人写好的函数</a></li><li class="lv3"><a href="#sec-7">随机数</a></li><li class="lv3"><a href="#sec-8">数学函数</a></li><li class="lv2"><a href="#sec-9">6.6 综合练习</a></li><li class="lv3"><a href="#sec-10">练习 1｜偶数判断</a></li><li class="lv3"><a href="#sec-11">练习 2｜三数取最大</a></li><li class="lv3"><a href="#sec-12">练习 3｜温度转换函数</a></li><li class="lv3"><a href="#sec-13">练习 4｜质数与选数</a></li><li class="lv3"><a href="#sec-14">练习 5（选做）｜用函数写冒泡排序</a></li><li class="lv2"><a href="#sec-15">6.7 本节小结与自查</a></li><li class="lv2"><a href="#sec-16">6.8 练习参考代码（做完再看）</a></li><li class="lv3"><a href="#ans-1">练习 1 参考代码</a></li><li class="lv3"><a href="#ans-2">练习 2 参考代码</a></li><li class="lv3"><a href="#ans-3">练习 3 参考代码</a></li><li class="lv3"><a href="#ans-4">练习 4 参考代码</a></li></ol></div></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>
